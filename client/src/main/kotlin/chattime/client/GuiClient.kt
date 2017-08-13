@@ -2,6 +2,8 @@ package chattime.client
 
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.io.PrintWriter
 import java.net.ConnectException
 import java.net.Socket
@@ -15,7 +17,7 @@ fun guiStart(args: Array<String>)
     try
     {
         val addressWithPort = {
-            var answer: String = "no."
+            var answer = "no."
 
             do
             {
@@ -45,21 +47,25 @@ fun guiInit(server: Socket): JFrame
 {
     val frame = JFrame("ChatTime GUI")
     val panel = JPanel(BorderLayout())
-    val textArea = JTextArea()
     val inputField = JTextField()
-    val scrollPane = JScrollPane(textArea)
+
+    val textListModel = DefaultListModel<String>()
+    val textList = JList<String>(textListModel)
+    val scrollPane = JScrollPane(textList)
 
     val serverScanner = Scanner(server.inputStream, Charsets.UTF_8.name())                    // This is why I
     val serverWriter = PrintWriter(server.outputStream.bufferedWriter(Charsets.UTF_8), true)  // don't like Windows
 
-    Thread({ guiListen(serverScanner, textArea, scrollPane) }).start()
+    Thread({ guiListen(serverScanner, textListModel, scrollPane) }).start()
 
-    textArea.isEditable = false
+    // TODO Write a popup menu with "Copy" and a timestamp on it
+    textList.selectionMode = ListSelectionModel.SINGLE_SELECTION
 
     inputField.addActionListener {
         serverWriter.println(inputField.text)
         inputField.text = ""
     }
+    inputField.addMouseListener(InputFieldMouse(inputField))
     inputField.requestFocusInWindow()
 
     panel.add(scrollPane, BorderLayout.CENTER)
@@ -72,7 +78,7 @@ fun guiInit(server: Socket): JFrame
     return frame
 }
 
-fun guiListen(scanner: Scanner, textArea: JTextArea, scrollPane: JScrollPane)
+fun guiListen(scanner: Scanner, model: DefaultListModel<String>, scrollPane: JScrollPane)
 {
     try
     {
@@ -80,7 +86,7 @@ fun guiListen(scanner: Scanner, textArea: JTextArea, scrollPane: JScrollPane)
         {
             val input = scanner.nextLine()
 
-            textArea.append("$input\n")
+            SwingUtilities.invokeLater { model.addElement(input) }
 
             // https://stackoverflow.com/questions/8789371/java-jtextpane-jscrollpane-de-activate-automatic-scrolling
             val sb = scrollPane.verticalScrollBar
@@ -99,3 +105,26 @@ fun guiListen(scanner: Scanner, textArea: JTextArea, scrollPane: JScrollPane)
 }
 
 fun guiError(msg: String) = JOptionPane.showMessageDialog(null, msg, "ChatTime", JOptionPane.ERROR_MESSAGE)
+
+private class InputFieldMouse(val inputField: JTextField) : MouseAdapter()
+{
+    val popup = JPopupMenu()
+
+    init
+    {
+        val selectAll = JMenuItem("Select All")
+        val paste = JMenuItem("Paste")
+
+        selectAll.addActionListener { inputField.selectAll() }
+        paste.addActionListener { inputField.paste() }
+
+        popup.add(selectAll)
+        popup.add(paste)
+    }
+
+    override fun mouseClicked(e: MouseEvent?)
+    {
+        if (e?.button == MouseEvent.BUTTON3)
+            popup.show(inputField, e.x, e.y)
+    }
+}
