@@ -47,11 +47,12 @@ fun guiInit(server: Socket): JFrame
     val panel = JPanel(BorderLayout())
     val textArea = JTextArea()
     val inputField = JTextField()
+    val scrollPane = JScrollPane(textArea)
 
     val serverScanner = Scanner(server.inputStream, Charsets.UTF_8.name())                    // This is why I
     val serverWriter = PrintWriter(server.outputStream.bufferedWriter(Charsets.UTF_8), true)  // don't like Windows
 
-    Thread({ guiListen(serverScanner, textArea) }).start()
+    Thread({ guiListen(serverScanner, textArea, scrollPane) }).start()
 
     textArea.isEditable = false
 
@@ -61,7 +62,7 @@ fun guiInit(server: Socket): JFrame
     }
     inputField.requestFocusInWindow()
 
-    panel.add(JScrollPane(textArea), BorderLayout.CENTER)
+    panel.add(scrollPane, BorderLayout.CENTER)
     panel.add(inputField, BorderLayout.SOUTH)
 
     frame.size = Dimension(640, 440)
@@ -71,7 +72,7 @@ fun guiInit(server: Socket): JFrame
     return frame
 }
 
-fun guiListen(scanner: Scanner, textArea: JTextArea)
+fun guiListen(scanner: Scanner, textArea: JTextArea, scrollPane: JScrollPane)
 {
     try
     {
@@ -82,7 +83,12 @@ fun guiListen(scanner: Scanner, textArea: JTextArea)
             textArea.append("$input\n")
 
             // https://stackoverflow.com/questions/8789371/java-jtextpane-jscrollpane-de-activate-automatic-scrolling
+            val sb = scrollPane.verticalScrollBar
 
+            if (sb.value + sb.visibleAmount == sb.maximum)
+                SwingUtilities.invokeLater {
+                    sb.value = sb.maximum
+                }
         } while (input != null)
     }
     catch (e: Exception)

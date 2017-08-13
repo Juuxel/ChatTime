@@ -1,5 +1,6 @@
 package chattime.client
 
+// Just a little special main function so I can provide the GUI as a default...
 
 fun main(args: Array<String>)
 {

@@ -129,3 +129,5 @@ gradle-app.setting
 workdir/
 .idea/
 **/build/
+client/out/
+server/out/
