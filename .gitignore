@@ -127,3 +127,5 @@ gradle-app.setting
 
 ### Custom ###
 workdir/
+.idea/
+**/build/
