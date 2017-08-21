@@ -1,6 +1,8 @@
 package chattime.client
 
-// Just a little special main function so I can provide the GUI as a default...
+import chattime.client.gui.guiStart
+
+// Just a little special main function so I can provide the GUI as a default and CLI as an option :-D
 
 fun main(args: Array<String>)
 {

@@ -1,4 +1,4 @@
-package chattime.client
+package chattime.client.gui
 
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent
 import java.io.PrintWriter
 import java.net.ConnectException
 import java.net.Socket
+import java.time.LocalTime
 import java.util.*
 import javax.swing.*
 
@@ -43,13 +44,13 @@ fun guiStart(args: Array<String>)
     }
 }
 
-fun guiInit(server: Socket): JFrame
+private fun guiInit(server: Socket): JFrame
 {
     val frame = JFrame("ChatTime GUI")
     val panel = JPanel(BorderLayout())
     val inputField = JTextField()
 
-    val textListModel = DefaultListModel<String>()
+    val textListModel = MessageListModel()
     val textList = JList<String>(textListModel)
     val scrollPane = JScrollPane(textList)
 
@@ -60,6 +61,7 @@ fun guiInit(server: Socket): JFrame
 
     // TODO Write a popup menu with "Copy" and a timestamp on it
     textList.selectionMode = ListSelectionModel.SINGLE_SELECTION
+    textList.addMouseListener(MessageListMouse(textList, textListModel))
 
     inputField.addActionListener {
         serverWriter.println(inputField.text)
@@ -78,7 +80,7 @@ fun guiInit(server: Socket): JFrame
     return frame
 }
 
-fun guiListen(scanner: Scanner, model: DefaultListModel<String>, scrollPane: JScrollPane)
+private fun guiListen(scanner: Scanner, model: MessageListModel, scrollPane: JScrollPane)
 {
     try
     {
@@ -86,9 +88,9 @@ fun guiListen(scanner: Scanner, model: DefaultListModel<String>, scrollPane: JSc
         {
             val input = scanner.nextLine()
 
-            SwingUtilities.invokeLater { model.addElement(input) }
+            SwingUtilities.invokeLater { model.addElement(input, LocalTime.now()) }
 
-            // https://stackoverflow.com/questions/8789371/java-jtextpane-jscrollpane-de-activate-automatic-scrolling
+            // https://stackoverflow.com/q/8789371
             val sb = scrollPane.verticalScrollBar
 
             if (sb.value + sb.visibleAmount == sb.maximum)
@@ -104,7 +106,7 @@ fun guiListen(scanner: Scanner, model: DefaultListModel<String>, scrollPane: JSc
     }
 }
 
-fun guiError(msg: String) = JOptionPane.showMessageDialog(null, msg, "ChatTime", JOptionPane.ERROR_MESSAGE)
+private fun guiError(msg: String) = JOptionPane.showMessageDialog(null, msg, "ChatTime", JOptionPane.ERROR_MESSAGE)
 
 private class InputFieldMouse(val inputField: JTextField) : MouseAdapter()
 {
@@ -122,9 +124,21 @@ private class InputFieldMouse(val inputField: JTextField) : MouseAdapter()
         popup.add(paste)
     }
 
-    override fun mouseClicked(e: MouseEvent?)
+    override fun mouseReleased(e: MouseEvent?)
     {
-        if (e?.button == MouseEvent.BUTTON3)
+        if (e != null)
+            showPopup(e)
+    }
+
+    override fun mousePressed(e: MouseEvent?)
+    {
+        if (e != null)
+            showPopup(e)
+    }
+
+    private fun showPopup(e: MouseEvent)
+    {
+        if (e.isPopupTrigger)
             popup.show(inputField, e.x, e.y)
     }
 }

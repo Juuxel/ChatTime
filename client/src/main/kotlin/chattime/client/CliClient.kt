@@ -1,5 +1,6 @@
 package chattime.client
 
+import chattime.common.formatMessage
 import java.io.PrintWriter
 import java.net.Socket
 
@@ -38,7 +39,7 @@ fun cliStart(args: Array<String>)
     }
 }
 
-fun cliInput(serverOut: PrintWriter)
+private fun cliInput(serverOut: PrintWriter)
 {
     do
     {
