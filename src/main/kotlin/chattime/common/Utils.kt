@@ -8,6 +8,3 @@ fun formatCurrentTime(): String = formatTime(LocalTime.now())
 
 fun formatMessage(msg: String): String
         = "${formatCurrentTime()} | $msg"
-
-fun formatMessageWithSender(senderName: String, msg: String): String
-        = formatMessage("/$senderName/ $msg")

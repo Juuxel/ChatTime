@@ -1,6 +1,6 @@
 package chattime.server
 
-import chattime.common.formatCurrentTime
+import chattime.common.formatMessage
 import chattime.server.event.MessageEvent
 import chattime.server.event.ServerEvent
 import chattime.server.event.UserEvent
@@ -48,22 +48,16 @@ class ChatServer : User
 
     @Synchronized fun pushMessage(msg: String,
                                   blacklist: Collection<User> = emptyList(),
-                                  whitelist: Collection<User> = emptyList(),
-                                  format: Boolean = true)
+                                  whitelist: Collection<User> = emptyList())
     {
-        var localMessage = msg
-
-        if (format)
-            localMessage = "${formatCurrentTime()} | $msg"
-
         if (whitelist.isEmpty())
-            users.filterNot { blacklist.contains(it) }.forEach { it.sendMessage(localMessage) }
+            users.filterNot { blacklist.contains(it) }.forEach { it.sendMessage(msg) }
         else
-            users.filter { whitelist.contains(it) }.forEach { it.sendMessage(localMessage) }
+            users.filter { whitelist.contains(it) }.forEach { it.sendMessage(msg) }
     }
 
     override fun sendMessage(msg: String)
     {
-        println(msg)
+        println(formatMessage(msg))
     }
 }

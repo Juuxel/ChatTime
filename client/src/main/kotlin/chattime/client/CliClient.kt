@@ -21,7 +21,7 @@ fun cliStart(args: Array<String>)
     val serverIn = server.inputStream.bufferedReader()
     val serverOut = PrintWriter(server.outputStream, true)
 
-    serverOut.println("!setCliMode") // Send the command to the server to clean up output :-)
+    serverOut.println("!toggleCliMode") // Send the command to the server to clean up output :-)
 
     Thread({ cliInput(serverOut) }).start()
 
@@ -30,7 +30,7 @@ fun cliStart(args: Array<String>)
         do
         {
             val output = serverIn.readLine()
-            println(output)
+            println(formatMessage(output))
         } while (output != null)
     }
     catch (e: Exception)

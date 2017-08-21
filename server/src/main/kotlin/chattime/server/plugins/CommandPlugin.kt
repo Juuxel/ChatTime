@@ -11,7 +11,7 @@ class CommandPlugin : Plugin
             "help" to CommandPlugin::help,
             "id" to CommandPlugin::id,
             "rename" to CommandPlugin::rename,
-            "setCliMode" to CommandPlugin::setCliMode
+            "toggleCliMode" to CommandPlugin::toggleCliMode // TODO Maybe replace?
     )
 
     override fun onPluginLoad(event: ServerEvent)
@@ -40,11 +40,18 @@ class CommandPlugin : Plugin
         val commandName =
                 if (spaceIndex == -1) event.msg.substring(1)
                 else event.msg.substring(1, spaceIndex)
+        var commandFound = false
 
         commands.forEach {
             if (it.first == commandName)
+            {
                 it.second(this, event)
+                commandFound = true
+            }
         }
+
+        if (!commandFound)
+            event.server.pushMessage("Command '$commandName' not found.", whitelist = listOf(event.sender))
     }
 
     // UTILS //
@@ -89,8 +96,8 @@ class CommandPlugin : Plugin
         }
     }
 
-    private fun setCliMode(event: MessageEvent)
+    private fun toggleCliMode(event: MessageEvent)
     {
-        event.sender.isCliUser = true
+        event.sender.isCliUser = !event.sender.isCliUser
     }
 }

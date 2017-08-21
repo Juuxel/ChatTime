@@ -59,7 +59,6 @@ private fun guiInit(server: Socket): JFrame
 
     Thread({ guiListen(serverScanner, textListModel, scrollPane) }).start()
 
-    // TODO Write a popup menu with "Copy" and a timestamp on it
     textList.selectionMode = ListSelectionModel.SINGLE_SELECTION
     textList.addMouseListener(MessageListMouse(textList, textListModel))
 
