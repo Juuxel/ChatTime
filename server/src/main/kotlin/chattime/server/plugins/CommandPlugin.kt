@@ -3,18 +3,26 @@ package chattime.server.plugins
 import chattime.server.User
 import chattime.server.event.*
 
+typealias Command = Pair<String, (CommandPlugin, MessageEvent) -> Unit>
+
 class CommandPlugin : Plugin
 {
     override val name = "Commands"
+    override val id = "Commands"
+    override val loadOrder = emptyList<LoadOrder>()
 
-    val commands = listOf(
+    private val mCommands: ArrayList<Command> = arrayListOf(
             "help" to CommandPlugin::help,
             "id" to CommandPlugin::id,
             "rename" to CommandPlugin::rename,
-            "toggleCliMode" to CommandPlugin::toggleCliMode // TODO Maybe replace?
+            "toggleCliMode" to CommandPlugin::toggleCliMode, // TODO Maybe replace?
+            "plugins" to CommandPlugin::plugins
     )
 
-    override fun onPluginLoad(event: ServerEvent)
+    val commands: List<Command>
+        get() = mCommands
+
+    override fun load(event: ServerEvent)
     {
         event.server.pushMessage("The Commands plugin loaded.")
     }
@@ -33,6 +41,15 @@ class CommandPlugin : Plugin
             processCommand(event)
     }
 
+    override fun handlePluginMessage(event: PluginMessageEvent)
+    {
+        if (event.message is AddCommandMessage)
+        {
+            event.server.pushMessage("[Commands] Adding commands from ${event.sender.id}", whitelist = listOf(event.server))
+            mCommands.add(event.message.commandName to event.message.function)
+        }
+    }
+
     private fun processCommand(event: MessageEvent)
     {
         // Get the command name
@@ -42,7 +59,7 @@ class CommandPlugin : Plugin
                 else event.msg.substring(1, spaceIndex)
         var commandFound = false
 
-        commands.forEach {
+        mCommands.forEach {
             if (it.first == commandName)
             {
                 it.second(this, event)
@@ -71,7 +88,7 @@ class CommandPlugin : Plugin
 
         pluginMessage(event, "help", "List of commands available:", whitelist = whitelist)
 
-        commands.forEach {
+        commands.sortedBy { it.first }.forEach {
             event.server.pushMessage("- ${it.first}", whitelist = whitelist)
         }
     }
@@ -99,5 +116,23 @@ class CommandPlugin : Plugin
     private fun toggleCliMode(event: MessageEvent)
     {
         event.sender.isCliUser = !event.sender.isCliUser
+    }
+
+    private fun plugins(event: MessageEvent)
+    {
+        val whitelist = listOf(event.sender)
+
+        pluginMessage(event, "plugins", "List of loaded plugins:", whitelist = whitelist)
+
+        event.server.plugins.sortedBy { it.name }.forEach {
+            event.server.pushMessage("- ${it.name} (${it.id})", whitelist = whitelist)
+        }
+    }
+
+    // PLUGIN MESSAGES //
+    class AddCommandMessage(val commandName: String, val function: (CommandPlugin, MessageEvent) -> Unit)
+    {
+        constructor(commandName: String, function: (MessageEvent) -> Unit)
+            : this(commandName, { _: CommandPlugin, event: MessageEvent -> function(event) })
     }
 }

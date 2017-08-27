@@ -36,6 +36,7 @@ fun cliStart(args: Array<String>)
     catch (e: Exception)
     {
         println("Disconnected from the server")
+        System.exit(0)
     }
 }
 
