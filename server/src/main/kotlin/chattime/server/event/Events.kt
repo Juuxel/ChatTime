@@ -11,6 +11,9 @@ class ServerEvent(server: ChatServer) : Event(server)
 class MessageEvent(server: ChatServer,
                    var msg: String,
                    val sender: User) : Event(server)
+{
+    fun pushMessageToSender(msg: String) = server.pushMessage(msg, whitelist = listOf(sender))
+}
 
 class UserEvent(server: ChatServer, val user: User) : Event(server)
 
@@ -18,4 +21,4 @@ class PluginEvent(server: ChatServer, val plugin: Plugin) : Event(server)
 
 class PluginMessageEvent(server: ChatServer,
                          val sender: Plugin,
-                         val message: Any) : Event(server)
+                         val msg: Any) : Event(server)

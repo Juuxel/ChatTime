@@ -4,7 +4,6 @@ import chattime.server.event.*
 
 interface Plugin
 {
-    val name: String
     val id: String
     val loadOrder: List<LoadOrder>
 

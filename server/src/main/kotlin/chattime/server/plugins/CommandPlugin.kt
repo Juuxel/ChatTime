@@ -7,7 +7,6 @@ typealias Command = Pair<String, (CommandPlugin, MessageEvent) -> Unit>
 
 class CommandPlugin : Plugin
 {
-    override val name = "Commands"
     override val id = "Commands"
     override val loadOrder = emptyList<LoadOrder>()
 
@@ -15,7 +14,6 @@ class CommandPlugin : Plugin
             "help" to CommandPlugin::help,
             "id" to CommandPlugin::id,
             "rename" to CommandPlugin::rename,
-            "toggleCliMode" to CommandPlugin::toggleCliMode, // TODO Maybe replace?
             "plugins" to CommandPlugin::plugins
     )
 
@@ -43,20 +41,16 @@ class CommandPlugin : Plugin
 
     override fun handlePluginMessage(event: PluginMessageEvent)
     {
-        if (event.message is AddCommandMessage)
+        if (event.msg is AddCommandMessage)
         {
             event.server.pushMessage("[Commands] Adding commands from ${event.sender.id}", whitelist = listOf(event.server))
-            mCommands.add(event.message.commandName to event.message.function)
+            mCommands.add(event.msg.commandName to event.msg.function)
         }
     }
 
     private fun processCommand(event: MessageEvent)
     {
-        // Get the command name
-        val spaceIndex = event.msg.indexOf(' ')
-        val commandName =
-                if (spaceIndex == -1) event.msg.substring(1)
-                else event.msg.substring(1, spaceIndex)
+        val commandName = getCommandParams(event.msg)[0]
         var commandFound = false
 
         mCommands.forEach {
@@ -78,6 +72,14 @@ class CommandPlugin : Plugin
                               whitelist: Collection<User> = emptyList())
     {
         event.server.pushMessage("[Commands] $cmd: $msg", blacklist, whitelist)
+    }
+
+    fun getCommandParams(msg: String): List<String>
+    {
+        val hasSpace = msg.indexOf(' ') != -1
+
+        return if (hasSpace) msg.substring(1).split(' ')
+               else listOf(msg.substring(1))
     }
 
     // COMMANDS //
@@ -113,19 +115,14 @@ class CommandPlugin : Plugin
         }
     }
 
-    private fun toggleCliMode(event: MessageEvent)
-    {
-        event.sender.isCliUser = !event.sender.isCliUser
-    }
-
     private fun plugins(event: MessageEvent)
     {
         val whitelist = listOf(event.sender)
 
         pluginMessage(event, "plugins", "List of loaded plugins:", whitelist = whitelist)
 
-        event.server.plugins.sortedBy { it.name }.forEach {
-            event.server.pushMessage("- ${it.name} (${it.id})", whitelist = whitelist)
+        event.server.plugins.sortedBy { it.id }.forEach {
+            event.server.pushMessage("- ${it.id}", whitelist = whitelist)
         }
     }
 
