@@ -2,20 +2,24 @@ package chattime.server
 
 import chattime.common.formatMessage
 import chattime.server.event.*
-import chattime.server.plugins.AttributesPlugin
-import chattime.server.plugins.CommandPlugin
-import chattime.server.plugins.LoadOrder
-import chattime.server.plugins.Plugin
+import chattime.server.plugins.*
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.*
+import kotlin.collections.HashMap
 
 class ChatServer : User
 {
     private val threads: ArrayList<ConnectionThread> = ArrayList()
     private val users: ArrayList<User> = arrayListOf(this)
-    private val mPlugins: ArrayList<Plugin> = ArrayList()
-    private val pluginLoadList: ArrayList<Plugin> = ArrayList()
+    internal val pluginLoader = PluginLoader(this)
+    private val properties = Properties()
+    private val propertiesPath = Paths.get("config.properties")
 
     val plugins: List<Plugin>
-        get() = mPlugins
+        get() = pluginLoader.plugins
+
+    private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
 
     // User stuff //
 
@@ -28,74 +32,32 @@ class ChatServer : User
 
     init
     {
-        addPlugin(CommandPlugin())
-        addPlugin(AttributesPlugin())
+        pluginLoader.addPlugin(CommandPlugin())
+        pluginLoader.addPlugin(AttributesPlugin())
+
+        loadProperties()
     }
 
+    private fun loadProperties()
+    {
+        // Initialize default values
+        // No defaults right now
+
+        // Prevents a NoSuchFileException
+        if (Files.notExists(propertiesPath))
+            Files.createFile(propertiesPath)
+
+        properties.load(Files.newInputStream(propertiesPath))
+    }
 
     fun addThread(thread: ConnectionThread)
     {
         threads.add(thread)
         users.add(thread)
 
-        mPlugins.forEach { it.onUserJoin(UserEvent(this, thread)) }
+        plugins.forEach { it.onUserJoin(UserEvent(this, thread)) }
 
         pushMessage("${thread.name} joined the chat room")
-    }
-
-    fun addPlugin(plugin: Plugin) = pluginLoadList.add(plugin)
-
-    internal fun loadPlugins()
-    {
-        fun doesLoadOrderConflict(p1: Plugin, p2: Plugin): Boolean
-        {
-            // Before
-            if (p1.loadOrder.any { it is LoadOrder.Before && it.id == p2.id} &&
-                p2.loadOrder.any { it is LoadOrder.Before && it.id == p1.id})
-                return true
-
-            // After
-            if (p1.loadOrder.any { it is LoadOrder.After && it.id == p2.id} &&
-                p2.loadOrder.any { it is LoadOrder.After && it.id == p1.id})
-                return true
-
-            return false
-        }
-
-        val sortedLoadList = pluginLoadList.sortedWith(Comparator { p1, p2 ->
-            if (doesLoadOrderConflict(p1, p2))
-            {
-                println("Plugin load orders conflict: ${p1.id}, ${p2.id}")
-                pluginLoadList.removeAll(listOf(p1, p2))
-            }
-
-            if (p1.loadOrder.any { it is LoadOrder.Before && it.id == p2.id } ||
-                p2.loadOrder.any { it is LoadOrder.After && it.id == p1.id })
-                return@Comparator -1
-            else if (p1.loadOrder.any { it is LoadOrder.After && it.id == p2.id } ||
-                p2.loadOrder.any { it is LoadOrder.Before && it.id == p1.id })
-                return@Comparator 1
-
-            return@Comparator 0
-        })
-
-        mainPlugins@ for (plugin in sortedLoadList)
-        {
-            for (requiredPlugin in plugin.loadOrder.filter { it.isRequired })
-            {
-                if (!sortedLoadList.any { it.id == requiredPlugin.id })
-                {
-                    println("Required plugin ${requiredPlugin.id} for ${plugin.id} not found, skipping loading...")
-                    continue@mainPlugins
-                }
-            }
-
-            mPlugins.add(plugin)
-            plugin.load(ServerEvent(this))
-            plugins.filter { it != plugin }.forEach {
-                it.onPluginLoaded(PluginEvent(this, plugin))
-            }
-        }
     }
 
     fun sendPluginMessage(id: String, sender: Plugin, msg: Any)
@@ -111,12 +73,20 @@ class ChatServer : User
         }
     }
 
+    fun getPluginProperties(plugin: Plugin): PluginProperties
+        = pluginPropertiesMap.getOrPut(plugin, { PluginProperties(properties, plugin) })
+
+    fun saveProperties()
+    {
+        properties.store(Files.newOutputStream(propertiesPath), "ChatTime server properties")
+    }
+
     @Synchronized
     fun receiveAndPushMessage(msg: String, user: User)
     {
         val event = MessageEvent(this, msg, user)
 
-        mPlugins.forEach { it.onMessageReceived(event) }
+        plugins.forEach { it.onMessageReceived(event) }
 
         val formattedMessage = "/${user.name}/ ${event.msg}"
 

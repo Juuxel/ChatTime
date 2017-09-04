@@ -1,6 +1,5 @@
 package chattime.server.plugins
 
-import chattime.server.event.Event
 import chattime.server.event.MessageEvent
 import chattime.server.event.ServerEvent
 
@@ -11,11 +10,6 @@ class AttributesPlugin : Plugin
     override val loadOrder = listOf(LoadOrder.After("Commands", isRequired = true))
 
     override fun load(event: ServerEvent)
-    {
-        addCommands(event)
-    }
-
-    private fun addCommands(event: Event)
     {
         val commandFunction =  { msgEvent: MessageEvent ->
             attributeCommand(msgEvent)

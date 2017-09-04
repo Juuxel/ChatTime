@@ -1,6 +1,6 @@
 package chattime.server
 
-import chattime.server.plugins.PluginFinder
+import chattime.server.plugins.PluginLoader
 import java.net.ServerSocket
 
 fun main(args: Array<String>)
@@ -16,9 +16,8 @@ fun main(args: Array<String>)
     println("Socket opened at ${args[0].toInt()}")
 
     Thread({ serverToClients(server) }).start()
-    PluginFinder(server).findPluginsFromDirectory("plugins")
-
-    server.loadPlugins()
+    server.pluginLoader.findPluginsFromDirectory("plugins")
+    server.pluginLoader.loadPlugins()
 
     do
     {
