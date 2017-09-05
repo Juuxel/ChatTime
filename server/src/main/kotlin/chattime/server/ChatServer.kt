@@ -25,8 +25,8 @@ class ChatServer : User
 
     override val id = "Server"
     override var name = "Server"
-    override var isCliUser
-        get() = true
+    override var isEchoingEnabled
+        get() = false
         set(value)
         { /* Fake variable :^D */ }
 
@@ -91,7 +91,7 @@ class ChatServer : User
         val formattedMessage = "/${user.name}/ ${event.msg}"
 
         pushMessage(formattedMessage,
-                    blacklist = if (user.isCliUser) listOf(user) else emptyList())
+                    blacklist = if (user.isEchoingEnabled) emptyList() else listOf(user))
     }
 
     @Synchronized

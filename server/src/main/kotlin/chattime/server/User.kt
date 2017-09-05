@@ -4,7 +4,7 @@ interface User
 {
     val id: String
     var name: String
-    var isCliUser: Boolean
+    var isEchoingEnabled: Boolean
 
     fun sendMessage(msg: String)
 }

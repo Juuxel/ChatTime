@@ -15,8 +15,8 @@ class AttributesPlugin : Plugin
 
     private val mHooks: ArrayList<Pair<String, (User, String) -> Unit>>
         = arrayListOf(
-            "isCliUser" to { user: User, s: String ->
-                user.isCliUser = s.toBoolean()
+            "isEchoingEnabled" to { user: User, s: String ->
+                user.isEchoingEnabled = s.toBoolean()
             }
         )
 
@@ -33,7 +33,7 @@ class AttributesPlugin : Plugin
 
         // Add the server user attributes
         userAttributes[event.server] = HashMap()
-        userAttributes[event.server]!!["isCliUser"] = "true"
+        userAttributes[event.server]!!["isEchoingEnabled"] = "true"
     }
 
     override fun onUserJoin(event: UserEvent)
@@ -41,12 +41,24 @@ class AttributesPlugin : Plugin
         userAttributes[event.user] = HashMap()
 
         // Add default data
-        userAttributes[event.user]!!["isCliUser"] = event.user.isCliUser.toString()
+        userAttributes[event.user]!!["isEchoingEnabled"] = event.user.isEchoingEnabled.toString()
     }
 
     private fun attributeCommand(plugin: CommandPlugin, event: MessageEvent)
     {
         val params = plugin.getCommandParams(event.msg)
+
+        fun listSubCommands() {
+            event.pushMessageToSender("[Attributes] List of subcommands:")
+            listOf("get", "set", "list").forEach { event.pushMessageToSender("- $it") }
+        }
+
+        if (params.size < 2)
+        {
+            event.pushMessageToSender("[Attributes] Please provide a subcommand.")
+            listSubCommands()
+            return
+        }
 
         when (params[1])
         {
@@ -69,6 +81,7 @@ class AttributesPlugin : Plugin
                     event.pushMessageToSender("[Attributes] Usage of 'set': !attributes set <id> <value>")
                 else
                 {
+                    event.pushMessageToSender("[Attributes] Setting the value of ${params[2]} to ${params[3]}")
                     userAttributes[event.sender]!![params[2]] = params[3]
 
                     attributeHooks.filter { it.first == params[2] }.forEach {
@@ -87,6 +100,7 @@ class AttributesPlugin : Plugin
 
             else -> {
                 event.pushMessageToSender("[Attributes] Unknown subcommand: ${params[1]}")
+                listSubCommands()
             }
         }
     }

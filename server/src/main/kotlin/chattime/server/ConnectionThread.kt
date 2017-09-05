@@ -8,7 +8,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
 {
     override val id = UUID.randomUUID().toString()
     override var name = id
-    override var isCliUser = false
+    override var isEchoingEnabled = true
     private val clientIn = Scanner(client.inputStream)
     private val clientOut = PrintWriter(client.outputStream, true)
 
