@@ -42,7 +42,7 @@ class PluginLoader(private val server: ChatServer)
                         listOf(pluginClassesString)
 
                 pluginClasses.forEach {
-                    val pluginClass = Class.forName(it).kotlin
+                    val pluginClass = Class.forName(it, true, classLoader).kotlin
 
                     if (pluginClass.java.interfaces.contains(Plugin::class.java))
                     {
