@@ -1,6 +1,9 @@
+/* This file is a part of the ChatTime project.
+ * ChatTime is distributed under the GNU GPLv3 license.
+ * Source code is available at https://github.com/Juuxel/ChatTime.
+ */
 package chattime.server
 
-import chattime.server.plugins.PluginLoader
 import java.net.ServerSocket
 
 fun main(args: Array<String>)

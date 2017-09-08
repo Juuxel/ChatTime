@@ -1,3 +1,6 @@
+/* This file is a part of the ChatTime project.
+ * Source code is available at https://github.com/Juuxel/ChatTime.
+ */
 package chattime.server.plugins
 
 import chattime.server.event.Event
