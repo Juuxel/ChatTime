@@ -88,6 +88,8 @@ class ChatServer : User
 
         plugins.forEach { it.onMessageReceived(event) }
 
+        if (event.isCanceled) return
+
         val formattedMessage = "/${user.name}/ ${event.msg}"
 
         pushMessage(formattedMessage,

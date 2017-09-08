@@ -21,7 +21,7 @@ fun cliStart(args: Array<String>)
     val serverIn = server.inputStream.bufferedReader()
     val serverOut = PrintWriter(server.outputStream, true)
 
-    serverOut.println("!attributes set isEchoingEnabled false") // Send the command to the server to clean up output :-)
+    serverOut.println("!silent attributes set isEchoingEnabled false") // Send the command to the server to clean up output :-)
 
     Thread({ cliInput(serverOut) }).start()
 

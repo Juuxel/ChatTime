@@ -14,7 +14,8 @@ class CommandPlugin : Plugin
             "help" to CommandPlugin::help,
             "id" to CommandPlugin::id,
             "rename" to CommandPlugin::rename,
-            "plugins" to CommandPlugin::plugins
+            "plugins" to CommandPlugin::plugins,
+            "silent" to CommandPlugin::runSilently
     )
 
     val commands: List<Command>
@@ -124,6 +125,22 @@ class CommandPlugin : Plugin
         event.server.plugins.sortedBy { it.id }.forEach {
             event.server.pushMessage("- ${it.id}", whitelist = whitelist)
         }
+    }
+
+    private fun runSilently(event: MessageEvent)
+    {
+        val params = getCommandParams(event.msg)
+
+        if (params.size == 1)
+        {
+            pluginMessage(event, "silent", "Usage: !silent <command>", whitelist = listOf(event.sender))
+            return
+        }
+
+        val newMsg = '!' + params.subList(1, params.size).joinToString(" ")
+
+        processCommand(MessageEvent(event.server, newMsg, event.sender))
+        event.cancel()
     }
 
     // PLUGIN MESSAGES //
