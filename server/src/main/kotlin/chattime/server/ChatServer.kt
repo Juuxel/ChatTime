@@ -7,9 +7,6 @@ package chattime.server
 import chattime.common.formatMessage
 import chattime.server.event.*
 import chattime.server.plugins.*
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.*
 import kotlin.collections.HashMap
 
 class ChatServer : User
@@ -17,8 +14,6 @@ class ChatServer : User
     private val threads: ArrayList<ConnectionThread> = ArrayList()
     private val users: ArrayList<User> = arrayListOf(this)
     internal val pluginLoader = PluginLoader(this)
-    private val properties = Properties()
-    private val propertiesPath = Paths.get("config.properties")
 
     val plugins: List<Plugin>
         get() = pluginLoader.plugins
@@ -38,20 +33,6 @@ class ChatServer : User
     {
         pluginLoader.addPlugin(CommandPlugin())
         pluginLoader.addPlugin(AttributesPlugin())
-
-        loadProperties()
-    }
-
-    private fun loadProperties()
-    {
-        // Initialize default values
-        // No defaults right now
-
-        // Prevents a NoSuchFileException
-        if (Files.notExists(propertiesPath))
-            Files.createFile(propertiesPath)
-
-        properties.load(Files.newInputStream(propertiesPath))
     }
 
     fun addThread(thread: ConnectionThread)
@@ -79,11 +60,6 @@ class ChatServer : User
 
     fun getPluginProperties(plugin: Plugin): PluginProperties
         = pluginPropertiesMap.getOrPut(plugin, { PluginProperties(properties, plugin) })
-
-    fun saveProperties()
-    {
-        properties.store(Files.newOutputStream(propertiesPath), "ChatTime server properties")
-    }
 
     @Synchronized
     fun receiveAndPushMessage(msg: String, user: User)

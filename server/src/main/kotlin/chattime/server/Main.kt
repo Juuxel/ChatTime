@@ -5,18 +5,28 @@
 package chattime.server
 
 import java.net.ServerSocket
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.*
+
+internal val properties = Properties()
+private val propertiesPath = Paths.get("config.properties")
 
 fun main(args: Array<String>)
 {
-    if (args.isEmpty())
-        println("Usage: chattime-server <port>")
-
     println("ChatTime server starting up!")
 
     val server = ChatServer()
-    val socket = ServerSocket(args[0].toInt())
 
-    println("Socket opened at ${args[0].toInt()}")
+	loadProperties()
+
+	if (properties.getProperty("server.port") == null)
+		properties.put("server.port", "25550")
+
+	val port = properties.getProperty("server.port").toInt()
+    val socket = ServerSocket(port)
+
+    println("Socket opened at $port")
 
     Thread({ serverToClients(server) }).start()
     server.pluginLoader.findPluginsFromDirectory("plugins")
@@ -32,7 +42,7 @@ fun main(args: Array<String>)
     } while (client != null)
 }
 
-fun serverToClients(server: ChatServer)
+private fun serverToClients(server: ChatServer)
 {
     do
     {
@@ -41,4 +51,21 @@ fun serverToClients(server: ChatServer)
         if (input != null && input != "") // "input.isNullOrEmpty()" didn't do the "smart cast" :-(
             server.receiveAndPushMessage(input, server)
     } while (input != null)
+}
+
+private fun loadProperties()
+{
+    // Initialize default values
+	// No defaults right now
+
+    // Prevents a NoSuchFileException
+	if (Files.notExists(propertiesPath))
+        Files.createFile(propertiesPath)
+
+    properties.load(Files.newInputStream(propertiesPath))
+}
+
+internal fun saveProperties()
+{
+    properties.store(Files.newOutputStream(propertiesPath), "ChatTime server properties")
 }

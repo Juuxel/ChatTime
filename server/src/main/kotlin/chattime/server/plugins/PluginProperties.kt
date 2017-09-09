@@ -4,7 +4,7 @@
  */
 package chattime.server.plugins
 
-import chattime.server.event.Event
+import chattime.server.saveProperties
 import java.util.*
 
 class PluginProperties(private val serverProperties: Properties,
@@ -36,8 +36,8 @@ class PluginProperties(private val serverProperties: Properties,
         serverProperties.put(getCustomKey(key), value)
     }
 
-    fun save(event: Event)
+    fun save()
     {
-        event.server.saveProperties()
+        saveProperties()
     }
 }

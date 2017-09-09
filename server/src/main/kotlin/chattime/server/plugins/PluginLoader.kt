@@ -4,6 +4,7 @@
  */
 package chattime.server.plugins
 
+import chattime.server.saveProperties
 import chattime.server.ChatServer
 import chattime.server.event.PluginEvent
 import chattime.server.event.ServerEvent
@@ -127,7 +128,7 @@ class PluginLoader(private val server: ChatServer)
             }
 
             // Save the initial properties after the plugins have been loaded
-            server.saveProperties()
+            saveProperties()
         }
     }
 }
