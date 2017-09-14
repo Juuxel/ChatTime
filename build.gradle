@@ -2,6 +2,8 @@
 buildscript {
     ext.kotlin_version = '1.1.4'
     ext.dokka_version = '0.9.15'
+    ext.shadow_version = '2.0.1'
+
     repositories {
         mavenCentral()
         jcenter()
@@ -9,6 +11,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+        classpath "com.github.jengelman.gradle.plugins:shadow:$shadow_version"
     }
 }
 
@@ -48,14 +51,7 @@ subprojects {
         compile project(':')
     }
 
-    task fatJar(type: Jar) {
-        from compileKotlin
-
-        // https://stackoverflow.com/a/3450409
-        from configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
+    apply plugin: 'com.github.johnrengelman.shadow'
 
     jar {
         manifest {
@@ -63,14 +59,8 @@ subprojects {
         }
     }
 
-    fatJar {
-        manifest {
-            attributes 'Main-Class': "chattime.${project.name}.MainKt"
-        }
-    }
-
     jar.baseName = "ChatTime-${project.name}"
-    fatJar.baseName = "ChatTime-${project.name}-fat"
+    shadowJar.baseName = "ChatTime-${project.name}"
 }
 
 task wrapper(type: Wrapper) {
