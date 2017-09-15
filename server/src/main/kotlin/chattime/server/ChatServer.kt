@@ -26,8 +26,7 @@ class ChatServer : User
     override var name = "Server"
     override var isEchoingEnabled
         get() = false
-        set(value)
-        { /* Fake variable :^D */ }
+        set(value) = Unit // Fake variable :^D
 
     init
     {

@@ -4,6 +4,9 @@
  */
 package chattime.server
 
+import chattime.common.Info
+import chattime.server.internal.JavaHelper
+import picocli.CommandLine
 import java.net.ServerSocket
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -14,6 +17,24 @@ private val propertiesPath = Paths.get("config.properties")
 
 fun main(args: Array<String>)
 {
+    val params = CliParams()
+    val commandLine = CommandLine(params)
+
+    commandLine.isUnmatchedArgumentsAllowed = true
+
+    JavaHelper.picocliParse(commandLine, args)
+
+    if (commandLine.isUsageHelpRequested)
+    {
+        CommandLine.usage(params, System.out)
+        return
+    }
+    else if (commandLine.isVersionHelpRequested)
+    {
+        commandLine.printVersionHelp(System.out)
+        return
+    }
+
     println("ChatTime server starting up!")
 
     val server = ChatServer()
@@ -27,6 +48,10 @@ fun main(args: Array<String>)
     val socket = ServerSocket(port)
 
     println("Socket opened at $port")
+
+    params.plugins.forEach {
+        server.pluginLoader.addPlugin(className = it)
+    }
 
     Thread({ serverToClients(server) }).start()
     server.pluginLoader.findPluginsFromDirectory("plugins")
@@ -68,4 +93,22 @@ private fun loadProperties()
 internal fun saveProperties()
 {
     properties.store(Files.newOutputStream(propertiesPath), "ChatTime server properties")
+}
+
+@CommandLine.Command(name = "chattime-server", version = arrayOf(Info.fullVersion))
+internal class CliParams
+{
+    @Suppress("unused")
+    @CommandLine.Option(names = arrayOf("-h", "--help"),
+                        usageHelp = true, description = arrayOf("display usage info"))
+    var isHelpRequested: Boolean = false
+
+    @Suppress("unused")
+    @CommandLine.Option(names = arrayOf("-V", "--version"),
+                        versionHelp = true, description = arrayOf("display version info"))
+    var isVersionRequested: Boolean = false
+
+    @CommandLine.Option(names = arrayOf("--plugins"),
+                        description = arrayOf("add plugins from the classpath manually"))
+    var plugins: List<String> = arrayListOf()
 }

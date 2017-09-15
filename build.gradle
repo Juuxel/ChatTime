@@ -49,6 +49,7 @@ project(':server') {
 subprojects {
     dependencies {
         compile project(':')
+        compile "info.picocli:picocli:$picocliVersion"
     }
 
     apply plugin: 'com.github.johnrengelman.shadow'

@@ -12,6 +12,7 @@ import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.jar.Manifest
+import kotlin.reflect.KClass
 
 class PluginLoader(private val server: ChatServer)
 {
@@ -21,7 +22,7 @@ class PluginLoader(private val server: ChatServer)
     val plugins: List<Plugin>
         get() = mPlugins
 
-    fun findPluginsFromDirectory(directory: String)
+    internal fun findPluginsFromDirectory(directory: String)
     {
         val path = Paths.get(directory)
 
@@ -49,20 +50,14 @@ class PluginLoader(private val server: ChatServer)
                 pluginClasses.forEach {
                     val pluginClass = Class.forName(it, true, classLoader).kotlin
 
-                    if (pluginClass.java.interfaces.contains(Plugin::class.java))
-                    {
-                        val plugin = pluginClass.constructors.first {
-                            it.parameters.isEmpty()
-                        }.call() as Plugin
-
-                        addPlugin(plugin)
-                    }
+                    addPlugin(constructPlugin(pluginClass))
                 }
             }
         }
     }
 
     fun addPlugin(plugin: Plugin) = pluginLoadList.add(plugin)
+    fun addPlugin(className: String) = addPlugin(constructPlugin(Class.forName(className).kotlin))
 
     internal fun loadPlugins()
     {
@@ -130,5 +125,18 @@ class PluginLoader(private val server: ChatServer)
             // Save the initial properties after the plugins have been loaded
             saveProperties()
         }
+    }
+
+    private fun constructPlugin(pluginClass: KClass<*>): Plugin
+    {
+        if (pluginClass.java.interfaces.contains(Plugin::class.java))
+        {
+            val plugin = pluginClass.constructors.first {
+                it.parameters.isEmpty()
+            }.call() as Plugin
+
+            return plugin
+        }
+        else throw IllegalArgumentException("pluginClass does not extend Plugin!")
     }
 }
