@@ -69,6 +69,8 @@ project(":server") {
 
         from sourceSets.api.output
     }
+
+    apiJar.baseName = "ChatTime-${project.name}"
 }
 
 subprojects {
