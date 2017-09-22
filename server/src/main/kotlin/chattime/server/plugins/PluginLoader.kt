@@ -12,7 +12,6 @@ import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.jar.Manifest
-import kotlin.reflect.KClass
 
 class PluginLoader(private val server: ChatServer)
 {
@@ -48,7 +47,7 @@ class PluginLoader(private val server: ChatServer)
                         listOf(pluginClassesString)
 
                 pluginClasses.forEach {
-                    val pluginClass = Class.forName(it, true, classLoader).kotlin
+                    val pluginClass = Class.forName(it, true, classLoader)
 
                     addPlugin(constructPlugin(pluginClass))
                 }
@@ -57,7 +56,7 @@ class PluginLoader(private val server: ChatServer)
     }
 
     fun addPlugin(plugin: Plugin) = pluginLoadList.add(plugin)
-    fun addPlugin(className: String) = addPlugin(constructPlugin(Class.forName(className).kotlin))
+    fun addPlugin(className: String) = addPlugin(constructPlugin(Class.forName(className)))
 
     internal fun loadPlugins()
     {
@@ -127,15 +126,14 @@ class PluginLoader(private val server: ChatServer)
         }
     }
 
-    private fun constructPlugin(pluginClass: KClass<*>): Plugin
+    private fun constructPlugin(pluginClass: Class<*>): Plugin
     {
-        if (pluginClass.java.interfaces.contains(Plugin::class.java))
+        if (pluginClass.interfaces.contains(Plugin::class.java))
         {
-            val plugin = pluginClass.constructors.first {
-                it.parameters.isEmpty()
-            }.call() as Plugin
 
-            return plugin
+            return pluginClass.constructors.first {
+                it.parameters.isEmpty()
+            }.newInstance() as Plugin
         }
         else throw IllegalArgumentException("pluginClass does not extend Plugin!")
     }
