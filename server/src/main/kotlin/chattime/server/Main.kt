@@ -5,7 +5,7 @@
 package chattime.server
 
 import chattime.common.Info
-import chattime.server.internal.JavaHelper
+import chattime.server.util.JavaHelper
 import picocli.CommandLine
 import java.net.ServerSocket
 import java.nio.file.Files
