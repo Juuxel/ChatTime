@@ -4,6 +4,7 @@
  */
 package chattime.server.api.plugin
 
+import chattime.server.api.plugin.Plugin
 import chattime.server.saveProperties
 import java.util.*
 

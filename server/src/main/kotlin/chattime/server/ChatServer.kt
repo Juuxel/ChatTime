@@ -10,7 +10,6 @@ import chattime.server.api.User
 import chattime.server.api.event.MessageEvent
 import chattime.server.api.event.PluginMessageEvent
 import chattime.server.api.event.UserEvent
-import chattime.server.api.features.Commands
 import chattime.server.api.features.Features
 import chattime.server.api.plugin.Plugin
 import chattime.server.api.plugin.PluginProperties

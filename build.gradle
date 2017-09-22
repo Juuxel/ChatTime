@@ -49,6 +49,28 @@ allprojects {
     }
 }
 
+project(":server") {
+    sourceSets {
+        api
+    }
+
+    dependencies {
+        compile sourceSets.api.output
+        apiCompile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
+    }
+
+    jar {
+        from sourceSets.main.output
+        from sourceSets.api.output
+    }
+
+    task apiJar(type: Jar) {
+        classifier = 'api'
+
+        from sourceSets.api.output
+    }
+}
+
 subprojects {
     dependencies {
         compile project(':')
