@@ -119,9 +119,11 @@ class AttributesPlugin : Plugin
     {
         if (event.msg is AddAttributeHookMessage)
         {
-            event.server.sendMessage("[Attributes] Adding a hook for ${event.msg.attributeId} from ${event.sender.id}",
+            val msg = event.msg as AddAttributeHookMessage
+
+            event.server.sendMessage("[Attributes] Adding a hook for ${msg.attributeId} from ${event.sender.id}",
                                      whitelist = listOf(event.server.serverUser))
-            mHooks.add(event.msg.attributeId to event.msg.hook)
+            mHooks.add(msg.attributeId to msg.hook)
         }
     }
 

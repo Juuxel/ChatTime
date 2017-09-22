@@ -4,16 +4,24 @@
  */
 package chattime.server.api.plugin
 
-import chattime.server.api.plugin.Plugin
-import chattime.server.saveProperties
 import java.util.*
 
-class PluginProperties(private val serverProperties: Properties,
-                       private val plugin: Plugin)
+abstract class PluginProperties(private val serverProperties: Properties,
+                                private val plugin: Plugin)
 {
-
     private fun getCustomKey(key: String): String = "plugins.${plugin.id}.$key"
 
+    /**
+     * Gets the property value of [key].
+     *
+     * If the value is null, returns `"null"` unless [default]
+     * is set to a non-null value. If [default] is set, the value of [key]
+     * is set to [default] and the function returns [default].
+     *
+     * @param key the property key
+     * @param default the default property value
+     * @return the value of [key]
+     */
     operator fun get(key: String, default: String? = null): String
     {
         val value = serverProperties.getProperty(getCustomKey(key))
@@ -37,8 +45,8 @@ class PluginProperties(private val serverProperties: Properties,
         serverProperties.put(getCustomKey(key), value)
     }
 
-    fun save()
-    {
-        saveProperties()
-    }
+    /**
+     * Stores the plugin properties in a file.
+     */
+    abstract fun save()
 }

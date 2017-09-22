@@ -69,7 +69,7 @@ class ChatServer : Server, User
     }
 
     override fun getPluginProperties(plugin: Plugin): PluginProperties
-        = pluginPropertiesMap.getOrPut(plugin, { PluginProperties(properties, plugin) })
+        = pluginPropertiesMap.getOrPut(plugin, { PluginPropertiesImpl(plugin) })
 
     @Synchronized
     override fun forwardMessageFromUser(msg: String, sender: User)
