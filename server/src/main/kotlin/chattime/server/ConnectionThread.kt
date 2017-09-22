@@ -29,7 +29,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
         }
         catch (e: Exception)
         {
-            server.pushMessage("$name left the chat room")
+            server.sendMessage("$name left the chat room")
             client.close() // Close the socket just in case
         }
 

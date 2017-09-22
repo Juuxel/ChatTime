@@ -10,6 +10,8 @@ import chattime.server.api.User
 import chattime.server.api.event.MessageEvent
 import chattime.server.api.event.PluginMessageEvent
 import chattime.server.api.event.UserEvent
+import chattime.server.api.features.Commands
+import chattime.server.api.features.Features
 import chattime.server.api.plugin.Plugin
 import chattime.server.api.plugin.PluginProperties
 import chattime.server.plugins.*
@@ -17,9 +19,10 @@ import kotlin.collections.HashMap
 
 class ChatServer : Server, User
 {
-    private val threads: ArrayList<ConnectionThread> = ArrayList()
     private val mutUsers: ArrayList<User> = arrayListOf(this)
+    private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
     internal val pluginLoader = PluginLoader(this)
+    private val commandPlugin = CommandPlugin()
 
     override val plugins: List<Plugin>
         get() = pluginLoader.plugins
@@ -29,7 +32,6 @@ class ChatServer : Server, User
 
     override val serverUser = this
 
-    private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
 
     // User stuff //
 
@@ -41,7 +43,7 @@ class ChatServer : Server, User
 
     init
     {
-        pluginLoader.addPlugin(CommandPlugin())
+        pluginLoader.addPlugin(commandPlugin)
         pluginLoader.addPlugin(AttributesPlugin())
     }
 
@@ -51,13 +53,7 @@ class ChatServer : Server, User
 
         plugins.forEach { it.onUserJoin(UserEvent(this, user)) }
 
-        pushMessage("${user.name} joined the chat room")
-    }
-
-    fun addThread(thread: ConnectionThread)
-    {
-        threads.add(thread)
-        addUser(thread)
+        sendMessage("${user.name} joined the chat room")
     }
 
     override fun sendPluginMessage(pluginId: String, sender: Plugin, msg: Any)
@@ -87,20 +83,28 @@ class ChatServer : Server, User
 
         val formattedMessage = "/${sender.name}/ ${event.msg}"
 
-        pushMessage(formattedMessage,
+        sendMessage(formattedMessage,
                     blacklist = if (sender.isEchoingEnabled) emptyList() else listOf(sender))
     }
 
     @Synchronized
-    override fun pushMessage(msg: String,
-                    blacklist: Collection<User>,
-                    whitelist: Collection<User>)
+    override fun sendMessage(msg: String,
+                             blacklist: Collection<User>,
+                             whitelist: Collection<User>)
     {
         if (whitelist.isEmpty())
             users.filterNot { blacklist.contains(it) }.forEach { it.sendMessage(msg) }
         else
             users.filter { whitelist.contains(it) }.forEach { it.sendMessage(msg) }
     }
+
+    @Suppress("unchecked_cast")
+    override fun <P : Plugin> getFeaturePlugin(feature: Features<P>): P
+        = when (feature)
+        {
+            Features.commands -> commandPlugin as P
+            else -> throw IllegalArgumentException("Unknown feature $feature")
+        }
 
     override fun sendMessage(msg: String)
     {

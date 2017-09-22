@@ -30,7 +30,7 @@ class MessageEvent(server: Server,
 {
     override val isCancelable = true
 
-    fun pushMessageToSender(msg: String) = server.pushMessage(msg, whitelist = listOf(sender))
+    fun sendMessageToSender(msg: String) = server.sendMessage(msg, whitelist = listOf(sender))
 }
 
 class UserEvent(server: Server, val user: User) : Event(server)

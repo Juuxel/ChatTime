@@ -4,6 +4,7 @@
  */
 package chattime.server.api
 
+import chattime.server.api.features.Features
 import chattime.server.api.plugin.Plugin
 import chattime.server.api.plugin.PluginProperties
 
@@ -28,7 +29,7 @@ interface Server
     val serverUser: User
 
     /**
-     * Pushes a message to the users on the server.
+     * Sends a message to the users on the server.
      *
      * The [blacklist] and the [whitelist] collections
      * can specify the users more precisely. When the whitelist
@@ -41,7 +42,7 @@ interface Server
      * @param blacklist a collection of users to be excluded from receiving the message
      * @param whitelist a collection of users to be whitelisted for receiving the message
      */
-    fun pushMessage(msg: String, blacklist: Collection<User> = emptyList(),
+    fun sendMessage(msg: String, blacklist: Collection<User> = emptyList(),
                     whitelist: Collection<User> = emptyList())
 
     /**
@@ -82,4 +83,12 @@ interface Server
      * @return the plugin properties instance for [plugin]
      */
     fun getPluginProperties(plugin: Plugin): PluginProperties
+
+    /**
+     * Gets a plugin for a [Features] id.
+     *
+     * @param feature the feature id
+     * @return a feature plugin
+     */
+    fun <P : Plugin> getFeaturePlugin(feature: Features<P>): P
 }

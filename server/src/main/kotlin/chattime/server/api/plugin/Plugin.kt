@@ -9,7 +9,9 @@ import chattime.server.api.event.*
 interface Plugin
 {
     val id: String
+
     val loadOrder: List<LoadOrder>
+        get() = emptyList()
 
     fun load(event: ServerEvent)
     {}
