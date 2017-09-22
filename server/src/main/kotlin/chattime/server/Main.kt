@@ -95,20 +95,20 @@ internal fun saveProperties()
     properties.store(Files.newOutputStream(propertiesPath), "ChatTime server properties")
 }
 
-@CommandLine.Command(name = "chattime-server", version = arrayOf(Info.fullVersion))
+@CommandLine.Command(name = "chattime-server", version = [Info.fullVersion])
 internal class CliParams
 {
     @Suppress("unused")
-    @CommandLine.Option(names = arrayOf("-h", "--help"),
-                        usageHelp = true, description = arrayOf("display usage info"))
+    @CommandLine.Option(names = ["-h", "--help"],
+                        usageHelp = true, description = ["display usage info"])
     var isHelpRequested: Boolean = false
 
     @Suppress("unused")
-    @CommandLine.Option(names = arrayOf("-V", "--version"),
-                        versionHelp = true, description = arrayOf("display version info"))
+    @CommandLine.Option(names = ["-V", "--version"],
+                        versionHelp = true, description = ["display version info"])
     var isVersionRequested: Boolean = false
 
-    @CommandLine.Option(names = arrayOf("--plugins"),
-                        description = arrayOf("add plugins from the classpath manually"))
+    @CommandLine.Option(names = ["--plugins"],
+                        description = ["add plugins from the classpath manually"])
     var plugins: List<String> = arrayListOf()
 }
