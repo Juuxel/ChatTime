@@ -34,14 +34,19 @@ class ChatServer : User
         pluginLoader.addPlugin(AttributesPlugin())
     }
 
+    fun addUser(user: User)
+    {
+        users.add(user)
+
+        plugins.forEach { it.onUserJoin(UserEvent(this, user)) }
+
+        pushMessage("${user.name} joined the chat room")
+    }
+
     fun addThread(thread: ConnectionThread)
     {
         threads.add(thread)
-        users.add(thread)
-
-        plugins.forEach { it.onUserJoin(UserEvent(this, thread)) }
-
-        pushMessage("${thread.name} joined the chat room")
+        addUser(thread)
     }
 
     fun sendPluginMessage(id: String, sender: Plugin, msg: Any)
