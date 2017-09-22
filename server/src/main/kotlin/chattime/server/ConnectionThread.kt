@@ -4,6 +4,7 @@
  */
 package chattime.server
 
+import chattime.server.api.User
 import java.io.PrintWriter
 import java.net.Socket
 import java.util.*
@@ -23,7 +24,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
             do
             {
                 val input = clientIn.nextLine()
-                server.receiveAndPushMessage(input, this)
+                server.forwardMessageFromUser(input, sender = this)
             } while (input != null)
         }
         catch (e: Exception)

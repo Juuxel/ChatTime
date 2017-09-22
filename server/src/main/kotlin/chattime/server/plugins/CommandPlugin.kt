@@ -4,8 +4,13 @@
  */
 package chattime.server.plugins
 
-import chattime.server.User
-import chattime.server.event.*
+import chattime.server.api.User
+import chattime.server.api.event.MessageEvent
+import chattime.server.api.event.PluginMessageEvent
+import chattime.server.api.event.ServerEvent
+import chattime.server.api.event.UserEvent
+import chattime.server.api.plugin.LoadOrder
+import chattime.server.api.plugin.Plugin
 
 typealias Command = Pair<String, (CommandPlugin, MessageEvent) -> Unit>
 
@@ -48,7 +53,7 @@ class CommandPlugin : Plugin
     {
         if (event.msg is AddCommandMessage)
         {
-            event.server.pushMessage("[Commands] Adding commands from ${event.sender.id}", whitelist = listOf(event.server))
+            event.server.pushMessage("[Commands] Adding commands from ${event.sender.id}", whitelist = listOf(event.server.serverUser))
             mCommands.add(event.msg.commandName to event.msg.function)
         }
     }

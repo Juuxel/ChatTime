@@ -4,11 +4,13 @@
  */
 package chattime.server.plugins
 
-import chattime.server.User
-import chattime.server.event.MessageEvent
-import chattime.server.event.PluginMessageEvent
-import chattime.server.event.ServerEvent
-import chattime.server.event.UserEvent
+import chattime.server.api.User
+import chattime.server.api.event.MessageEvent
+import chattime.server.api.event.PluginMessageEvent
+import chattime.server.api.event.ServerEvent
+import chattime.server.api.event.UserEvent
+import chattime.server.api.plugin.LoadOrder
+import chattime.server.api.plugin.Plugin
 
 class AttributesPlugin : Plugin
 {
@@ -36,8 +38,8 @@ class AttributesPlugin : Plugin
                                        CommandPlugin.AddCommandMessage("attributes", commandFunction))
 
         // Add the server user attributes
-        userAttributes[event.server] = HashMap()
-        userAttributes[event.server]!!["isEchoingEnabled"] = "true"
+        userAttributes[event.server.serverUser] = HashMap()
+        userAttributes[event.server.serverUser]!!["isEchoingEnabled"] = "true"
     }
 
     override fun onUserJoin(event: UserEvent)
@@ -114,7 +116,7 @@ class AttributesPlugin : Plugin
         if (event.msg is AddAttributeHookMessage)
         {
             event.server.pushMessage("[Attributes] Adding a hook for ${event.msg.attributeId} from ${event.sender.id}",
-                                     whitelist = listOf(event.server))
+                                     whitelist = listOf(event.server.serverUser))
             mHooks.add(event.msg.attributeId to event.msg.hook)
         }
     }

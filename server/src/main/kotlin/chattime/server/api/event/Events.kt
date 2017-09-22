@@ -2,13 +2,13 @@
  * ChatTime is distributed under the GNU GPLv3 license.
  * Source code is available at https://github.com/Juuxel/ChatTime.
  */
-package chattime.server.event
+package chattime.server.api.event
 
-import chattime.server.ChatServer
-import chattime.server.plugins.Plugin
-import chattime.server.User
+import chattime.server.api.Server
+import chattime.server.api.User
+import chattime.server.api.plugin.Plugin
 
-abstract class Event(val server: ChatServer)
+abstract class Event(val server: Server)
 {
     var isCanceled: Boolean = false
         get
@@ -22,9 +22,9 @@ abstract class Event(val server: ChatServer)
     }
 }
 
-class ServerEvent(server: ChatServer) : Event(server)
+class ServerEvent(server: Server) : Event(server)
 
-class MessageEvent(server: ChatServer,
+class MessageEvent(server: Server,
                    var msg: String,
                    val sender: User) : Event(server)
 {
@@ -33,10 +33,10 @@ class MessageEvent(server: ChatServer,
     fun pushMessageToSender(msg: String) = server.pushMessage(msg, whitelist = listOf(sender))
 }
 
-class UserEvent(server: ChatServer, val user: User) : Event(server)
+class UserEvent(server: Server, val user: User) : Event(server)
 
-class PluginEvent(server: ChatServer, val plugin: Plugin) : Event(server)
+class PluginEvent(server: Server, val plugin: Plugin) : Event(server)
 
-class PluginMessageEvent(server: ChatServer,
+class PluginMessageEvent(server: Server,
                          val sender: Plugin,
                          val msg: Any) : Event(server)

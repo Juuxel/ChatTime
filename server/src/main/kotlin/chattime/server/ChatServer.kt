@@ -5,18 +5,29 @@
 package chattime.server
 
 import chattime.common.formatMessage
-import chattime.server.event.*
+import chattime.server.api.Server
+import chattime.server.api.User
+import chattime.server.api.event.MessageEvent
+import chattime.server.api.event.PluginMessageEvent
+import chattime.server.api.event.UserEvent
+import chattime.server.api.plugin.Plugin
+import chattime.server.api.plugin.PluginProperties
 import chattime.server.plugins.*
 import kotlin.collections.HashMap
 
-class ChatServer : User
+class ChatServer : Server, User
 {
     private val threads: ArrayList<ConnectionThread> = ArrayList()
-    private val users: ArrayList<User> = arrayListOf(this)
+    private val mutUsers: ArrayList<User> = arrayListOf(this)
     internal val pluginLoader = PluginLoader(this)
 
-    val plugins: List<Plugin>
+    override val plugins: List<Plugin>
         get() = pluginLoader.plugins
+
+    override val users: List<User>
+        get() = mutUsers
+
+    override val serverUser = this
 
     private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
 
@@ -34,9 +45,9 @@ class ChatServer : User
         pluginLoader.addPlugin(AttributesPlugin())
     }
 
-    fun addUser(user: User)
+    override fun addUser(user: User)
     {
-        users.add(user)
+        mutUsers.add(user)
 
         plugins.forEach { it.onUserJoin(UserEvent(this, user)) }
 
@@ -49,9 +60,9 @@ class ChatServer : User
         addUser(thread)
     }
 
-    fun sendPluginMessage(id: String, sender: Plugin, msg: Any)
+    override fun sendPluginMessage(pluginId: String, sender: Plugin, msg: Any)
     {
-        plugins.filter { it.id == id }.forEach {
+        plugins.filter { it.id == pluginId }.forEach {
             it.handlePluginMessage(
                 PluginMessageEvent(
                     this,
@@ -62,28 +73,28 @@ class ChatServer : User
         }
     }
 
-    fun getPluginProperties(plugin: Plugin): PluginProperties
+    override fun getPluginProperties(plugin: Plugin): PluginProperties
         = pluginPropertiesMap.getOrPut(plugin, { PluginProperties(properties, plugin) })
 
     @Synchronized
-    fun receiveAndPushMessage(msg: String, user: User)
+    override fun forwardMessageFromUser(msg: String, sender: User)
     {
-        val event = MessageEvent(this, msg, user)
+        val event = MessageEvent(this, msg, sender)
 
         plugins.forEach { it.onMessageReceived(event) }
 
         if (event.isCanceled) return
 
-        val formattedMessage = "/${user.name}/ ${event.msg}"
+        val formattedMessage = "/${sender.name}/ ${event.msg}"
 
         pushMessage(formattedMessage,
-                    blacklist = if (user.isEchoingEnabled) emptyList() else listOf(user))
+                    blacklist = if (sender.isEchoingEnabled) emptyList() else listOf(sender))
     }
 
     @Synchronized
-    fun pushMessage(msg: String,
-                    blacklist: Collection<User> = emptyList(),
-                    whitelist: Collection<User> = emptyList())
+    override fun pushMessage(msg: String,
+                    blacklist: Collection<User>,
+                    whitelist: Collection<User>)
     {
         if (whitelist.isEmpty())
             users.filterNot { blacklist.contains(it) }.forEach { it.sendMessage(msg) }
