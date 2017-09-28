@@ -67,22 +67,22 @@ private fun cliInput(serverOut: PrintWriter)
     } while (input != null)
 }
 
-@CommandLine.Command(name = "chattime-client", version = [Info.fullVersion]
+@CommandLine.Command(name = "chattime-client", version = [Info.fullVersion])
 internal class CliParams
 {
-    @CommandLine.Parameters(index = "0", arity = "1", description = ["the server address"]
+    @CommandLine.Parameters(index = "0", arity = "1", description = ["the server address"])
     var host: InetAddress? = null
 
-    @CommandLine.Parameters(index = "1", arity = "1", description = ["the server port"]
+    @CommandLine.Parameters(index = "1", arity = "1", description = ["the server port"])
     var port: Int = 0
 
     @Suppress("unused")
-    @CommandLine.Option(names = ["-h", "--help"]
-                        usageHelp = true, description = ["display usage info"]
+    @CommandLine.Option(names = ["-h", "--help"],
+                        usageHelp = true, description = ["display usage info"])
     var isHelpRequested: Boolean = true
 
     @Suppress("unused")
-    @CommandLine.Option(names = ["-V", "--version"]
-                        versionHelp = true, description = ["display version info"]
+    @CommandLine.Option(names = ["-V", "--version"],
+                        versionHelp = true, description = ["display version info"])
     var isVersionRequested: Boolean = false
 }
