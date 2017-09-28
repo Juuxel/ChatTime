@@ -17,8 +17,16 @@ interface Commands : Plugin
     override val id
         get() = "Commands"
 
+    /**
+     * A list of the commands that are loaded into Commands.
+     */
+    val commands: List<Command>
+
     companion object
     {
+        /**
+         * Constructs a simple [Command] object from a name and a function.
+         */
         fun construct(name: String,
                       block: (MessageEvent) -> Unit): Command
         = SimpleCommand(name, block)

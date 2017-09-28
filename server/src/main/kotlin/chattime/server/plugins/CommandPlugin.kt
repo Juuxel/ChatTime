@@ -16,15 +16,15 @@ class CommandPlugin : Commands
     override val id = "Commands"
 
     private val mutCommands: ArrayList<Command> = arrayListOf(
-            FunctionCommand("help", CommandPlugin::help),
-            FunctionCommand("id", CommandPlugin::id),
-            FunctionCommand("rename", CommandPlugin::rename),
-            FunctionCommand("plugins", CommandPlugin::plugins),
-            FunctionCommand("silent", CommandPlugin::runSilently),
-            FunctionCommand("users", CommandPlugin::users)
+            construct("help", CommandPlugin::help),
+            construct("id", CommandPlugin::id),
+            construct("rename", CommandPlugin::rename),
+            construct("plugins", CommandPlugin::plugins),
+            construct("silent", CommandPlugin::runSilently),
+            construct("users", CommandPlugin::users)
     )
 
-    val commands: List<Command>
+    override val commands: List<Command>
         get() = mutCommands
 
     companion object
@@ -86,6 +86,9 @@ class CommandPlugin : Commands
     {
         event.sendMessageToSender("[Commands] $cmd: $msg")
     }
+
+    private fun construct(name: String, function: (CommandPlugin, MessageEvent) -> Unit)
+        = Commands.construct(name, { function(this, it) })
 
     // COMMANDS //
 
@@ -149,15 +152,6 @@ class CommandPlugin : Commands
 
         event.server.users.sortedBy { it.name }.forEach {
             event.server.sendMessage("- ${it.name}", whitelist = listOf(event.sender))
-        }
-    }
-
-    private inner class FunctionCommand(override val name: String,
-                                        val function: (CommandPlugin, MessageEvent) -> Unit) : Command
-    {
-        override fun handleMessage(event: MessageEvent)
-        {
-            function(this@CommandPlugin, event)
         }
     }
 }
