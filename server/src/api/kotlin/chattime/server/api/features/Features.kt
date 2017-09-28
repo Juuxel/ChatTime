@@ -11,6 +11,9 @@ import chattime.server.api.plugin.Plugin
  * They are simplified specifications of the core plugins
  * bundled with the server.
  *
+ * @param P the feature plugin type
+ * @param id the feature plugin id
+ *
  * @see Commands
  */
 class Features<P : Plugin> private constructor(val id: String)

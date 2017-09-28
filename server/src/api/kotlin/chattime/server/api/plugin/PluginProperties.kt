@@ -6,6 +6,13 @@ package chattime.server.api.plugin
 
 import java.util.*
 
+/**
+ * A property map for plugins. Instances of this class can
+ * be obtained from the server with [chattime.server.api.Server.getPluginProperties].
+ *
+ * @param serverProperties the main properties object
+ * @param plugin the owner plugin
+ */
 abstract class PluginProperties(private val serverProperties: Properties,
                                 private val plugin: Plugin)
 {
@@ -40,6 +47,12 @@ abstract class PluginProperties(private val serverProperties: Properties,
         return value
     }
 
+    /**
+     * Sets a property with [key] to [value].
+     *
+     * @param key the property key
+     * @param value the new value
+     */
     operator fun set(key: String, value: String)
     {
         serverProperties.put(getCustomKey(key), value)

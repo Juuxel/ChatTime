@@ -41,15 +41,37 @@ interface Commands : Plugin
         }
     }
 
+    /**
+     * Adds [command] to [commands].
+     * When a command is added, it can be called
+     * by sending a message starting with `!`
+     * and the command name.
+     *
+     * @param command the command
+     */
     fun addCommand(command: Command)
 
+    /**
+     * A chat command.
+     */
     interface Command
     {
+        /**
+         * The command name (used when calling).
+         */
         val name: String
 
+        /**
+         * Handles the message which contains the command call.
+         *
+         * @param event the message event containing the message
+         */
         fun handleMessage(event: MessageEvent)
     }
 
+    /**
+     * A list of the default commands.
+     */
     enum class DefaultCommands(val commandName: String)
     {
         /**
