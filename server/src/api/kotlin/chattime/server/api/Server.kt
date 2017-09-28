@@ -4,6 +4,7 @@
  */
 package chattime.server.api
 
+import chattime.server.api.event.EventBus
 import chattime.server.api.features.Features
 import chattime.server.api.plugin.Plugin
 import chattime.server.api.plugin.PluginProperties
@@ -27,6 +28,11 @@ interface Server
      * The server console user.
      */
     val serverUser: User
+
+    /**
+     * The server event bus.
+     */
+    val eventBus: EventBus
 
     /**
      * Sends a message to the users on the server.
@@ -62,17 +68,6 @@ interface Server
      * @param user the user
      */
     fun addUser(user: User)
-
-    /**
-     * Sends a plugin message from [sender] to the plugin "[pluginId]".
-     *
-     * @param pluginId the plugin id
-     * @param sender the sender plugin
-     * @param msg the message object
-     *
-     * @see Plugin.handlePluginMessage
-     */
-    fun sendPluginMessage(pluginId: String, sender: Plugin, msg: Any)
 
     /**
      * Gets a [PluginProperties] instance for the [plugin].'

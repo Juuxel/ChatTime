@@ -27,7 +27,7 @@ allprojects {
     apply plugin: 'org.jetbrains.dokka'
 
     group = 'chattime'
-    version =  '0.1.0'
+    version = projectVersion
 
     sourceCompatibility = 1.8
 
@@ -56,6 +56,7 @@ project(":server") {
 
     dependencies {
         compile sourceSets.api.output
+        compile "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
         apiCompile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
     }
 

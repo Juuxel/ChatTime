@@ -6,8 +6,8 @@ package chattime.server.plugins
 
 import chattime.server.saveProperties
 import chattime.server.ChatServer
-import chattime.server.api.event.PluginEvent
-import chattime.server.api.event.ServerEvent
+import chattime.server.api.event.EventType
+import chattime.server.api.event.PluginLoadEvent
 import chattime.server.api.plugin.LoadOrder
 import chattime.server.api.plugin.Plugin
 import java.net.URLClassLoader
@@ -118,10 +118,11 @@ class PluginLoader(private val server: ChatServer)
             }
 
             mPlugins.add(plugin)
-            plugin.load(ServerEvent(server))
-            plugins.filter { it != plugin }.forEach {
-                it.onPluginLoaded(PluginEvent(server, plugin))
+            server.eventBus.subscribe(EventType.pluginLoad) {
+                if (it.plugin == plugin) plugin.load(it)
             }
+
+            plugin.load(PluginLoadEvent(server, plugin))
 
             // Save the initial properties after the plugins have been loaded
             saveProperties()

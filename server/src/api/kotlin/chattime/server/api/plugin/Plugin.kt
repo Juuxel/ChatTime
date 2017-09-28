@@ -13,19 +13,7 @@ interface Plugin
     val loadOrder: List<LoadOrder>
         get() = emptyList()
 
-    fun load(event: ServerEvent)
-    {}
-
-    fun onUserJoin(event: UserEvent)
-    {}
-
-    fun onMessageReceived(event: MessageEvent)
-    {}
-
-    fun handlePluginMessage(event: PluginMessageEvent)
-    {}
-
-    fun onPluginLoaded(event: PluginEvent)
+    fun load(event: PluginLoadEvent)
     {}
 }
 

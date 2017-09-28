@@ -8,8 +8,7 @@ import chattime.common.formatMessage
 import chattime.server.api.Server
 import chattime.server.api.User
 import chattime.server.api.event.MessageEvent
-import chattime.server.api.event.PluginMessageEvent
-import chattime.server.api.event.UserEvent
+import chattime.server.api.event.UserJoinEvent
 import chattime.server.api.features.Features
 import chattime.server.api.plugin.Plugin
 import chattime.server.api.plugin.PluginProperties
@@ -31,6 +30,7 @@ class ChatServer : Server, User
 
     override val serverUser = this
 
+    override val eventBus = EventBusImpl()
 
     // User stuff //
 
@@ -50,22 +50,9 @@ class ChatServer : Server, User
     {
         mutUsers.add(user)
 
-        plugins.forEach { it.onUserJoin(UserEvent(this, user)) }
+        eventBus.post(UserJoinEvent(this, user))
 
         sendMessage("${user.name} joined the chat room")
-    }
-
-    override fun sendPluginMessage(pluginId: String, sender: Plugin, msg: Any)
-    {
-        plugins.filter { it.id == pluginId }.forEach {
-            it.handlePluginMessage(
-                PluginMessageEvent(
-                    this,
-                    sender,
-                    msg
-                )
-            )
-        }
     }
 
     override fun getPluginProperties(plugin: Plugin): PluginProperties
@@ -76,7 +63,7 @@ class ChatServer : Server, User
     {
         val event = MessageEvent(this, msg, sender)
 
-        plugins.forEach { it.onMessageReceived(event) }
+        eventBus.post(event)
 
         if (event.isCanceled) return
 

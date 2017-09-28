@@ -17,11 +17,27 @@ interface Commands : Plugin
     override val id
         get() = "Commands"
 
+    companion object
+    {
+        fun construct(name: String,
+                      block: (MessageEvent) -> Unit): Command
+        = SimpleCommand(name, block)
+
+        private class SimpleCommand(override val name: String,
+                                    private val block: (MessageEvent) -> Unit) : Command
+        {
+            override fun handleMessage(event: MessageEvent)
+            {
+                block(event)
+            }
+        }
+    }
+
     fun addCommand(command: Command)
 
     interface Command
     {
-        val commandName: String
+        val name: String
 
         fun handleMessage(event: MessageEvent)
     }

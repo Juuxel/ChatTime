@@ -5,10 +5,7 @@
 package chattime.server.plugins
 
 import chattime.server.api.User
-import chattime.server.api.event.MessageEvent
-import chattime.server.api.event.PluginMessageEvent
-import chattime.server.api.event.ServerEvent
-import chattime.server.api.event.UserEvent
+import chattime.server.api.event.*
 import chattime.server.api.features.Commands
 import chattime.server.api.features.Features
 import chattime.server.api.plugin.LoadOrder
@@ -30,23 +27,23 @@ class AttributesPlugin : Plugin
 
     private val userAttributes: HashMap<User, HashMap<String, String>> = HashMap()
 
-    override fun load(event: ServerEvent)
+    override fun load(event: PluginLoadEvent)
     {
-        event.server.getFeaturePlugin(Features.commands).addCommand(object : Commands.Command {
-            override val commandName = "attributes"
+        event.server
+            .getFeaturePlugin(Features.commands)
+            .addCommand(Commands.construct("attributes") {
+                attributeCommand(it)
+            })
 
-            override fun handleMessage(event: MessageEvent)
-            {
-                attributeCommand(event)
-            }
-        })
+        event.eventBus.subscribe(EventType.userJoin, { onUserJoin(it) })
+        event.eventBus.subscribe(EventType.pluginMessage, { handlePluginMessage(it) })
 
         // Add the server user attributes
         userAttributes[event.server.serverUser] = HashMap()
         userAttributes[event.server.serverUser]!!["isEchoingEnabled"] = "true"
     }
 
-    override fun onUserJoin(event: UserEvent)
+    private fun onUserJoin(event: UserJoinEvent)
     {
         userAttributes[event.user] = HashMap()
 
@@ -115,7 +112,7 @@ class AttributesPlugin : Plugin
         }
     }
 
-    override fun handlePluginMessage(event: PluginMessageEvent)
+    private fun handlePluginMessage(event: PluginMessageEvent)
     {
         if (event.msg is AddAttributeHookMessage)
         {

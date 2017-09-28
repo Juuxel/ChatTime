@@ -10,11 +10,15 @@ import chattime.server.api.plugin.Plugin
 
 abstract class Event(val server: Server)
 {
+    val eventBus
+        get() = server.eventBus
+}
+
+abstract class CancelableEvent(server: Server) : Event(server)
+{
     var isCanceled: Boolean = false
         get
         private set
-
-    open val isCancelable: Boolean = false
 
     fun cancel()
     {
@@ -22,21 +26,20 @@ abstract class Event(val server: Server)
     }
 }
 
-class ServerEvent(server: Server) : Event(server)
-
-class MessageEvent(server: Server,
-                   var msg: String,
-                   val sender: User) : Event(server)
-{
-    override val isCancelable = true
-
-    fun sendMessageToSender(msg: String) = server.sendMessage(msg, whitelist = listOf(sender))
-}
-
-class UserEvent(server: Server, val user: User) : Event(server)
-
-class PluginEvent(server: Server, val plugin: Plugin) : Event(server)
-
+class UserJoinEvent(server: Server, val user: User) : Event(server)
+class PluginLoadEvent(server: Server, val plugin: Plugin) : Event(server)
 class PluginMessageEvent(server: Server,
+                         val receiverId: String,
                          val sender: Plugin,
                          val msg: Any) : Event(server)
+
+open class EventType<E : Event> protected constructor(val eventClass: Class<E>)
+{
+    companion object
+    {
+        val userJoin = EventType(UserJoinEvent::class.java)
+        val pluginMessage = EventType(PluginMessageEvent::class.java)
+        val pluginLoad = EventType(PluginLoadEvent::class.java)
+        val chatMessage = EventType(MessageEvent::class.java)
+    }
+}

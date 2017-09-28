@@ -4,9 +4,10 @@
  */
 package chattime.server.plugins
 
+import chattime.server.api.event.EventType
 import chattime.server.api.event.MessageEvent
-import chattime.server.api.event.ServerEvent
-import chattime.server.api.event.UserEvent
+import chattime.server.api.event.PluginLoadEvent
+import chattime.server.api.event.UserJoinEvent
 import chattime.server.api.features.Commands
 import chattime.server.api.features.Commands.Command
 
@@ -37,12 +38,13 @@ class CommandPlugin : Commands
         }
     }
 
-    override fun load(event: ServerEvent)
+    override fun load(event: PluginLoadEvent)
     {
-        event.server.sendMessage("The Commands plugin loaded.")
+        event.eventBus.subscribe(EventType.userJoin) { onUserJoin(it) }
+        event.eventBus.subscribe(EventType.chatMessage) { onMessageReceived(it) }
     }
 
-    override fun onUserJoin(event: UserEvent)
+    private fun onUserJoin(event: UserJoinEvent)
     {
         val userList = listOf(event.user)
 
@@ -50,7 +52,7 @@ class CommandPlugin : Commands
         event.server.sendMessage("Type !help for more information.", whitelist = userList)
     }
 
-    override fun onMessageReceived(event: MessageEvent)
+    private fun onMessageReceived(event: MessageEvent)
     {
         if (event.msg.startsWith("!") && event.msg != "!")
             processCommand(event)
@@ -62,7 +64,7 @@ class CommandPlugin : Commands
         var commandFound = false
 
         mutCommands.forEach {
-            if (it.commandName == commandName)
+            if (it.name == commandName)
             {
                 it.handleMessage(event)
                 commandFound = true
@@ -91,8 +93,8 @@ class CommandPlugin : Commands
     {
         pluginMessage(event, "help", "List of commands available:")
 
-        commands.sortedBy { it.commandName }.forEach {
-            event.server.sendMessage("- ${it.commandName}", whitelist = listOf(event.sender))
+        commands.sortedBy { it.name }.forEach {
+            event.server.sendMessage("- ${it.name}", whitelist = listOf(event.sender))
         }
     }
 
@@ -150,8 +152,8 @@ class CommandPlugin : Commands
         }
     }
 
-    private inner class FunctionCommand(override val commandName: String,
-                                  val function: (CommandPlugin, MessageEvent) -> Unit) : Command
+    private inner class FunctionCommand(override val name: String,
+                                        val function: (CommandPlugin, MessageEvent) -> Unit) : Command
     {
         override fun handleMessage(event: MessageEvent)
         {
