@@ -5,7 +5,6 @@
 package chattime.api.plugin
 
 import chattime.api.event.PluginLoadEvent
-import chattime.server.api.event.*
 
 /**
  * A server plugin.

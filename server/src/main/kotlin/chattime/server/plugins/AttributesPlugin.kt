@@ -6,7 +6,6 @@ package chattime.server.plugins
 
 import chattime.api.User
 import chattime.api.event.*
-import chattime.server.api.event.*
 import chattime.api.features.Commands
 import chattime.api.features.Features
 import chattime.api.plugin.LoadOrder
