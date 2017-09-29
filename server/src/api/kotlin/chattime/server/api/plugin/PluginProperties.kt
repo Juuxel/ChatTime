@@ -10,6 +10,8 @@ import java.util.*
  * A property map for plugins. Instances of this class can
  * be obtained from the server with [chattime.server.api.Server.getPluginProperties].
  *
+ * @constructor The primary constructor.
+ *
  * @param serverProperties the main properties object
  * @param plugin the owner plugin
  */

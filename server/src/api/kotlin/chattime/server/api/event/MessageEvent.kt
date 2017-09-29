@@ -8,16 +8,20 @@ import chattime.server.api.Server
 import chattime.server.api.User
 
 /**
- * An event which represents a chat message.
+ * This event represents a chat message.
  *
  * MessageEvent's [EventType] is [EventType.chatMessage].
+ *
+ * @constructor The primary constructor.
  *
  * @param server the chat server
  * @param msg the chat message
  * @param sender the message sender
  */
 class MessageEvent(server: Server,
+                   /** The chat message. */
                    var msg: String,
+                   /** The message sender. */
                    val sender: User) : CancelableEvent(server)
 {
     /**

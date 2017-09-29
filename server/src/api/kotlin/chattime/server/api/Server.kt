@@ -70,7 +70,7 @@ interface Server
     fun addUser(user: User)
 
     /**
-     * Gets a [PluginProperties] instance for the [plugin].'
+     * Gets a [PluginProperties] instance for the [plugin].
      * If a properties instance is not found, a new one will be created, stored
      * and returned by this function.
      *

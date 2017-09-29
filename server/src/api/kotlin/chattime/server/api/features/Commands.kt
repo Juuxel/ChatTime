@@ -72,7 +72,9 @@ interface Commands : Plugin
     /**
      * A list of the default commands.
      */
-    enum class DefaultCommands(val commandName: String)
+    enum class DefaultCommands(
+        /** The command name. */
+        val commandName: String)
     {
         /**
          * Provides info about commands.

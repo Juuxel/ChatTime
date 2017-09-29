@@ -24,7 +24,6 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'kotlin'
     apply plugin: 'idea'
-    apply plugin: 'org.jetbrains.dokka'
 
     group = 'chattime'
     version = projectVersion
@@ -42,16 +41,22 @@ allprojects {
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
     }
+}
+
+project(":server") {
+    apply plugin: 'org.jetbrains.dokka'
+
+    sourceSets {
+        api
+    }
 
     dokka {
         outputFormat = 'html'
         outputDirectory = "$buildDir/javadoc"
-    }
-}
 
-project(":server") {
-    sourceSets {
-        api
+        kotlinTasks {
+            [compileApiKotlin]
+        }
     }
 
     dependencies {
