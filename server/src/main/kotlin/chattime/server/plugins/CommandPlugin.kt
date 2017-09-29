@@ -27,17 +27,6 @@ class CommandPlugin : Commands
     override val commands: List<Command>
         get() = mutCommands
 
-    companion object
-    {
-        fun getCommandParams(msg: String): List<String>
-        {
-            val hasSpace = msg.indexOf(' ') != -1
-
-            return if (hasSpace) msg.substring(1).split(' ')
-            else listOf(msg.substring(1))
-        }
-    }
-
     override fun load(event: PluginLoadEvent)
     {
         event.eventBus.subscribe(EventType.userJoin) { onUserJoin(it) }
@@ -60,7 +49,7 @@ class CommandPlugin : Commands
 
     private fun processCommand(event: MessageEvent)
     {
-        val commandName = getCommandParams(event.msg)[0]
+        val commandName = Commands.getCommandParams(event.msg)[0]
         var commandFound = false
 
         mutCommands.forEach {
@@ -132,7 +121,7 @@ class CommandPlugin : Commands
 
     private fun runSilently(event: MessageEvent)
     {
-        val params = getCommandParams(event.msg)
+        val params = Commands.getCommandParams(event.msg)
 
         if (params.size == 1)
         {

@@ -48,7 +48,7 @@ class ChatServer : Server, User
 
     override fun addUser(user: User)
     {
-        mutUsers.add(user)
+        mutUsers += user
 
         eventBus.post(UserJoinEvent(this, user))
 

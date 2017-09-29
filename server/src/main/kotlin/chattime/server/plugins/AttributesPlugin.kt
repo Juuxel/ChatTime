@@ -15,10 +15,8 @@ class AttributesPlugin : Plugin
 {
     override val id: String = "Attributes"
     override val loadOrder = listOf(LoadOrder.After("Commands", isRequired = true))
-    val attributeHooks: List<Pair<String, (User, String) -> Unit>>
-        get() = mHooks
 
-    private val mHooks: ArrayList<Pair<String, (User, String) -> Unit>>
+    private val attributeHooks: ArrayList<Pair<String, (User, String) -> Unit>>
         = arrayListOf(
             "isEchoingEnabled" to { user: User, s: String ->
                 user.isEchoingEnabled = s.toBoolean()
@@ -53,7 +51,7 @@ class AttributesPlugin : Plugin
 
     private fun attributeCommand(event: MessageEvent)
     {
-        val params = CommandPlugin.getCommandParams(event.msg)
+        val params = Commands.getCommandParams(event.msg)
 
         fun listSubCommands() {
             event.sendMessageToSender("[Attributes] List of subcommands:")
@@ -120,7 +118,7 @@ class AttributesPlugin : Plugin
 
             event.server.sendMessage("[Attributes] Adding a hook for ${msg.attributeId} from ${event.sender.id}",
                                      whitelist = listOf(event.server.serverUser))
-            mHooks.add(msg.attributeId to msg.hook)
+            attributeHooks += msg.attributeId to msg.hook
         }
     }
 

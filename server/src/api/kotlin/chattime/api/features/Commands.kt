@@ -39,6 +39,25 @@ interface Commands : Plugin
                 block(event)
             }
         }
+
+        /**
+         * Splits the command into a list of parameters.
+         *
+         * @param msg the chat message with the command
+         *
+         * @throws IllegalArgumentException if [msg] is not a command
+         * @return a list of command parameters
+         */
+        fun getCommandParams(msg: String): List<String>
+        {
+            if (!msg.startsWith("!") || msg == "!")
+                throw IllegalArgumentException("'$msg' is not a command!")
+
+            val hasSpace = msg.indexOf(' ') != -1
+
+            return if (hasSpace) msg.substring(1).split(' ')
+            else listOf(msg.substring(1))
+        }
     }
 
     /**

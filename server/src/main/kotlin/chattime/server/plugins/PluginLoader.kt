@@ -103,7 +103,7 @@ class PluginLoader(private val server: ChatServer)
             if (!pluginProps["enabled", "true"].toBoolean())
             {
                 println("Plugin ${plugin.id} is disabled, skipping loading...")
-                disabledMarkings.add(plugin)
+                disabledMarkings += plugin
                 continue
             }
 
