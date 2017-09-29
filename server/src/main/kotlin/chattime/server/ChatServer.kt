@@ -15,9 +15,9 @@ import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*
 import kotlin.collections.HashMap
 
-class ChatServer : Server, User
+class ChatServer : Server
 {
-    private val mutUsers: ArrayList<User> = arrayListOf(this)
+    private val mutUsers: ArrayList<User> = arrayListOf(ServerUser)
     private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
     internal val pluginLoader = PluginLoader(this)
     private val commandPlugin = CommandPlugin()
@@ -28,17 +28,9 @@ class ChatServer : Server, User
     override val users: List<User>
         get() = mutUsers
 
-    override val serverUser = this
+    override val serverUser = ServerUser
 
     override val eventBus = EventBusImpl()
-
-    // User stuff //
-
-    override val id = "Server"
-    override var name = "Server"
-    override var isEchoingEnabled
-        get() = false
-        set(value) = Unit // Fake variable :^D
 
     init
     {
@@ -67,7 +59,7 @@ class ChatServer : Server, User
 
         if (event.isCanceled) return
 
-        val formattedMessage = "/${sender.name}/ ${event.msg}"
+        val formattedMessage = "${sender.name}: ${event.msg}"
 
         sendMessage(formattedMessage,
                     blacklist = if (sender.isEchoingEnabled) emptyList() else listOf(sender))
@@ -92,8 +84,18 @@ class ChatServer : Server, User
             else -> throw IllegalArgumentException("Unknown feature $feature")
         }
 
-    override fun sendMessage(msg: String)
+    object ServerUser : User
     {
-        println(formatMessage(msg))
+        override val id = "Server"
+        override var name = "Server"
+
+        override var isEchoingEnabled: Boolean
+            get() = false
+            set(value) = Unit
+
+        override fun sendMessage(msg: String)
+        {
+            println(formatMessage(msg))
+        }
     }
 }

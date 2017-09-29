@@ -16,12 +16,14 @@ class CommandPlugin : Commands
     override val id = "Commands"
 
     private val mutCommands: ArrayList<Command> = arrayListOf(
-            construct("help", CommandPlugin::help),
-            construct("id", CommandPlugin::id),
-            construct("rename", CommandPlugin::rename),
-            construct("plugins", CommandPlugin::plugins),
-            construct("silent", CommandPlugin::runSilently),
-            construct("users", CommandPlugin::users)
+        construct("help", Desc.help, CommandPlugin::help),
+        construct("id", Desc.id, CommandPlugin::id),
+        construct("rename", Desc.rename, CommandPlugin::rename),
+        construct("plugins", Desc.plugins, CommandPlugin::plugins),
+        construct("silent", Desc.silent, CommandPlugin::runSilently),
+        construct("users", Desc.users, CommandPlugin::users),
+        construct("pm", Desc.pm, CommandPlugin::pm),
+        construct("whois", Desc.whoIs, CommandPlugin::whoIs)
     )
 
     override val commands: List<Command>
@@ -76,8 +78,8 @@ class CommandPlugin : Commands
         event.sendMessageToSender("[Commands] $cmd: $msg")
     }
 
-    private fun construct(name: String, function: (CommandPlugin, MessageEvent) -> Unit)
-        = Commands.construct(name, { function(this, it) })
+    private fun construct(name: String, desc: String, function: (CommandPlugin, MessageEvent) -> Unit)
+        = Commands.construct(name, desc, { function(this, it) })
 
     // COMMANDS //
 
@@ -86,27 +88,53 @@ class CommandPlugin : Commands
         pluginMessage(event, "help", "List of commands available:")
 
         commands.sortedBy { it.name }.forEach {
-            event.server.sendMessage("- ${it.name}", whitelist = listOf(event.sender))
+            event.sendMessageToSender("- ${it.name}: ${it.description}")
         }
     }
 
     private fun id(event: MessageEvent)
     {
-        pluginMessage(event, "id", event.sender.id)
+        val params = Commands.getCommandParams(event.msg,
+                                               joinLastParam = true,
+                                               lastParamIndex = 1)
+
+        if (params.size > 1)
+        {
+            val userName = params[1]
+            val users = event.server.users
+
+            if (users.none { it.name.contains(userName, ignoreCase = true) })
+                pluginMessage(event, "id", "No users found with name '$userName'")
+            else
+            {
+                pluginMessage(event, "id",
+                              "List of all users with '$userName' in their name:")
+
+                users.filter {
+                    it.name.contains(userName, ignoreCase = true)
+                }.forEach {
+                    event.sendMessageToSender("- ${it.name}: ${it.id}")
+                }
+            }
+        }
+        else
+            pluginMessage(event, "id", event.sender.id)
     }
 
     private fun rename(event: MessageEvent)
     {
-        val spaceIndex = event.msg.indexOf(' ')
+        val params = Commands.getCommandParams(event.msg,
+                                               joinLastParam = true,
+                                               lastParamIndex = 1)
 
-        if (spaceIndex == -1)
+        if (params.size == 1)
             pluginMessage(event, "rename", "Type a new name.")
         else
         {
             val oldName = event.sender.name
-            val newName = event.msg.substring(spaceIndex + 1)
+            val newName = params[1]
             event.sender.name = newName
-            pluginMessage(event, "rename", "$oldName → $newName")
+            event.server.sendMessage("Renamed $oldName → $newName")
         }
     }
 
@@ -115,13 +143,15 @@ class CommandPlugin : Commands
         pluginMessage(event, "plugins", "List of loaded plugins:")
 
         event.server.plugins.sortedBy { it.id }.forEach {
-            event.server.sendMessage("- ${it.id}", whitelist = listOf(event.sender))
+            event.sendMessageToSender("- ${it.id}")
         }
     }
 
     private fun runSilently(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg)
+        val params = Commands.getCommandParams(event.msg,
+                                               joinLastParam = true,
+                                               lastParamIndex = 1)
 
         if (params.size == 1)
         {
@@ -129,9 +159,7 @@ class CommandPlugin : Commands
             return
         }
 
-        val newMsg = '!' + params.subList(1, params.size).joinToString(" ")
-
-        processCommand(MessageEvent(event.server, newMsg, event.sender))
+        processCommand(MessageEvent(event.server, "!${params[1]}", event.sender))
         event.cancel()
     }
 
@@ -140,7 +168,53 @@ class CommandPlugin : Commands
         pluginMessage(event, "users", "Users in the chat:")
 
         event.server.users.sortedBy { it.name }.forEach {
-            event.server.sendMessage("- ${it.name}", whitelist = listOf(event.sender))
+            event.sendMessageToSender("- ${it.name}")
         }
+    }
+
+    private fun pm(event: MessageEvent)
+    {
+        val params = Commands.getCommandParams(event.msg,
+                                               joinLastParam = true,
+                                               lastParamIndex = 2)
+
+        if (params.size < 3)
+        {
+            pluginMessage(event, "pm", "Usage: !pm <user id> <msg>")
+            return
+        }
+
+        val list = event.server.users.filter { it.id == params[1] }
+
+        event.server.sendMessage("${event.sender.name} (PM): ${params[2]}", whitelist = list)
+        event.cancel()
+    }
+
+    private fun whoIs(event: MessageEvent)
+    {
+        val params = Commands.getCommandParams(event.msg)
+
+        if (params.size < 2)
+        {
+            pluginMessage(event, "whois", "Usage: !whois <user id>")
+            return
+        }
+
+        val user = event.server.users.first { it.id == params[1] }.name
+
+        event.sendMessageToSender("${params[1]} is $user")
+    }
+
+    object Desc
+    {
+        val attributes = "Manage user attributes"
+        val help = "Shows information about commands"
+        val id = "Shows user ids"
+        val plugins = "Lists all plugins"
+        val pm = "Message someone privately"
+        val rename = "Rename yourself"
+        val silent = "Debugs commands silently"
+        val users = "Lists all users"
+        val whoIs = "Shows the name of a user from an id"
     }
 }

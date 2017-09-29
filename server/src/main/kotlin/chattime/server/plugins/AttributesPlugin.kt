@@ -29,7 +29,7 @@ class AttributesPlugin : Plugin
     {
         event.server
             .getFeaturePlugin(Features.commands)
-            .addCommand(Commands.construct("attributes") {
+            .addCommand(Commands.construct("attributes", CommandPlugin.Desc.attributes) {
                 attributeCommand(it)
             })
 

@@ -74,7 +74,7 @@ private fun serverToClients(server: ChatServer)
         val input = readLine()
 
         if (input != null && input != "") // "input.isNullOrEmpty()" didn't do the "smart cast" :-(
-            server.forwardMessageFromUser(input, server)
+            server.forwardMessageFromUser(input, server.serverUser)
     } while (input != null)
 }
 
