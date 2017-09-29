@@ -167,10 +167,10 @@ interface Commands : Plugin
         /**
          * Sends a message to the sender containing a user name.
          *
-         * - Usage: `!whois <user id>`
+         * - Usage: `!who-is <user id>`
          *   - Sends a message containing the user name of `<user id>`
          */
-        WHO_IS("whois"),
+        WHO_IS("who-is"),
 
         /**
          * Sends a message visible to only one user.

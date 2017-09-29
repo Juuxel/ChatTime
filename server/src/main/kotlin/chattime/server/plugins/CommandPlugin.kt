@@ -10,6 +10,7 @@ import chattime.api.event.PluginLoadEvent
 import chattime.api.event.UserJoinEvent
 import chattime.api.features.Commands
 import chattime.api.features.Commands.Command
+import chattime.common.Info
 
 class CommandPlugin : Commands
 {
@@ -23,7 +24,8 @@ class CommandPlugin : Commands
         construct("silent", Desc.silent, CommandPlugin::runSilently),
         construct("users", Desc.users, CommandPlugin::users),
         construct("pm", Desc.pm, CommandPlugin::pm),
-        construct("whois", Desc.whoIs, CommandPlugin::whoIs)
+        construct("who-is", Desc.whoIs, CommandPlugin::whoIs),
+        construct("ct-info", Desc.ctInfo, CommandPlugin::ctInfo)
     )
 
     override val commands: List<Command>
@@ -205,9 +207,21 @@ class CommandPlugin : Commands
         event.sendMessageToSender("${params[1]} is $user")
     }
 
+    private fun ctInfo(event: MessageEvent)
+    {
+        event.sendMessageToSender(Info.fullVersion)
+        event.sendMessageToSender("Made by Juuxel")
+        event.sendMessageToSender("-=-=-=-=-")
+        event.sendMessageToSender("Open Source Libraries:")
+        event.sendMessageToSender("- picocli (https://github.com/remkop/picocli)")
+        event.sendMessageToSender("- RxJava (https://github.com/ReactiveX/RxJava)")
+        event.sendMessageToSender("- RxKotlin (https://github.com/ReactiveX/RxKotlin)")
+    }
+
     object Desc
     {
         val attributes = "Manage user attributes"
+        val ctInfo = "Information about ChatTime"
         val help = "Shows information about commands"
         val id = "Shows user ids"
         val plugins = "Lists all plugins"
