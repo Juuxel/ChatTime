@@ -4,8 +4,8 @@
  */
 package chattime.server.plugins
 
-import chattime.server.api.plugin.Plugin
-import chattime.server.api.plugin.PluginProperties
+import chattime.api.plugin.Plugin
+import chattime.api.plugin.PluginProperties
 import chattime.server.properties
 import chattime.server.saveProperties
 

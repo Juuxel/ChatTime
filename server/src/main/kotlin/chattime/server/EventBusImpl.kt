@@ -4,9 +4,9 @@
  */
 package chattime.server
 
-import chattime.server.api.event.Event
-import chattime.server.api.event.EventBus
-import chattime.server.api.event.EventType
+import chattime.api.event.Event
+import chattime.api.event.EventBus
+import chattime.api.event.EventType
 import io.reactivex.subjects.PublishSubject
 
 class EventBusImpl : EventBus

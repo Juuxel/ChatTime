@@ -5,13 +5,13 @@
 package chattime.server
 
 import chattime.common.formatMessage
-import chattime.server.api.Server
-import chattime.server.api.User
-import chattime.server.api.event.MessageEvent
-import chattime.server.api.event.UserJoinEvent
-import chattime.server.api.features.Features
-import chattime.server.api.plugin.Plugin
-import chattime.server.api.plugin.PluginProperties
+import chattime.api.Server
+import chattime.api.User
+import chattime.api.event.MessageEvent
+import chattime.api.event.UserJoinEvent
+import chattime.api.features.Features
+import chattime.api.plugin.Plugin
+import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*
 import kotlin.collections.HashMap
 

@@ -2,9 +2,9 @@
  * ChatTime is distributed under the GNU GPLv3 license.
  * Source code is available at https://github.com/Juuxel/ChatTime.
  */
-package chattime.server.api.features
+package chattime.api.features
 
-import chattime.server.api.plugin.Plugin
+import chattime.api.plugin.Plugin
 
 /**
  * Features are special plugins that are defined in this package.

@@ -4,7 +4,7 @@
  */
 package chattime.server
 
-import chattime.server.api.User
+import chattime.api.User
 import java.io.PrintWriter
 import java.net.Socket
 import java.util.*

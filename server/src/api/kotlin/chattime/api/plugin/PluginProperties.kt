@@ -2,13 +2,13 @@
  * ChatTime is distributed under the GNU GPLv3 license.
  * Source code is available at https://github.com/Juuxel/ChatTime.
  */
-package chattime.server.api.plugin
+package chattime.api.plugin
 
 import java.util.*
 
 /**
  * A property map for plugins. Instances of this class can
- * be obtained from the server with [chattime.server.api.Server.getPluginProperties].
+ * be obtained from the server with [chattime.api.Server.getPluginProperties].
  *
  * @constructor The primary constructor.
  *

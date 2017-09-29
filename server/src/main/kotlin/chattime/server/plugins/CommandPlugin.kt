@@ -4,12 +4,12 @@
  */
 package chattime.server.plugins
 
-import chattime.server.api.event.EventType
-import chattime.server.api.event.MessageEvent
-import chattime.server.api.event.PluginLoadEvent
-import chattime.server.api.event.UserJoinEvent
-import chattime.server.api.features.Commands
-import chattime.server.api.features.Commands.Command
+import chattime.api.event.EventType
+import chattime.api.event.MessageEvent
+import chattime.api.event.PluginLoadEvent
+import chattime.api.event.UserJoinEvent
+import chattime.api.features.Commands
+import chattime.api.features.Commands.Command
 
 class CommandPlugin : Commands
 {

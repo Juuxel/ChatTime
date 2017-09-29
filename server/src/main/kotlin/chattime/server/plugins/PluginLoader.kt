@@ -6,10 +6,10 @@ package chattime.server.plugins
 
 import chattime.server.saveProperties
 import chattime.server.ChatServer
-import chattime.server.api.event.EventType
-import chattime.server.api.event.PluginLoadEvent
-import chattime.server.api.plugin.LoadOrder
-import chattime.server.api.plugin.Plugin
+import chattime.api.event.EventType
+import chattime.api.event.PluginLoadEvent
+import chattime.api.plugin.LoadOrder
+import chattime.api.plugin.Plugin
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Paths

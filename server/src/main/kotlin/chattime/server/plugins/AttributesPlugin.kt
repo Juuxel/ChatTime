@@ -4,12 +4,13 @@
  */
 package chattime.server.plugins
 
-import chattime.server.api.User
+import chattime.api.User
+import chattime.api.event.*
 import chattime.server.api.event.*
-import chattime.server.api.features.Commands
-import chattime.server.api.features.Features
-import chattime.server.api.plugin.LoadOrder
-import chattime.server.api.plugin.Plugin
+import chattime.api.features.Commands
+import chattime.api.features.Features
+import chattime.api.plugin.LoadOrder
+import chattime.api.plugin.Plugin
 
 class AttributesPlugin : Plugin
 {
