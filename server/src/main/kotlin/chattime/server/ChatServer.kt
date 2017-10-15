@@ -9,6 +9,7 @@ import chattime.api.Server
 import chattime.api.User
 import chattime.api.event.MessageEvent
 import chattime.api.event.UserJoinEvent
+import chattime.api.features.Permissions
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*
@@ -30,13 +31,16 @@ class ChatServer : Server
 
     override val eventBus = EventBusImpl()
 
+    // Feature plugins
+
     override val commandsPlugin = CommandPlugin()
+    override val permissionsPlugin = PermissionsPlugin()
 
     init
     {
         pluginLoader.addPlugin(commandsPlugin)
+        pluginLoader.addPlugin(permissionsPlugin)
         pluginLoader.addPlugin(AttributesPlugin())
-        pluginLoader.addPlugin(PermissionsPlugin())
     }
 
     override fun addUser(user: User)

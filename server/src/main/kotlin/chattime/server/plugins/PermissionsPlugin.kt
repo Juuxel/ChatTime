@@ -7,14 +7,15 @@ package chattime.server.plugins
 import chattime.api.User
 import chattime.api.event.*
 import chattime.api.features.Commands
-import chattime.api.plugin.Plugin
+import chattime.api.features.Permissions
+import chattime.api.features.Permissions.*
 
-class PermissionsPlugin : Plugin
+class PermissionsPlugin : Permissions
 {
     private val permissions: HashMap<User, ArrayList<Permission>>
     = HashMap()
 
-    private val commandDefaults: HashMap<String, PermissionType>
+    private val globals: HashMap<String, PermissionType>
     = HashMap()
 
     override val id = "Permissions"
@@ -23,13 +24,6 @@ class PermissionsPlugin : Plugin
     {
         event.eventBus.subscribe(EventType.commandCall) { handleCommand(it) }
         event.eventBus.subscribe(EventType.userJoin) { handleUserJoin(it) }
-        event.eventBus.subscribe(EventType.pluginMessage) {
-            if (it.msg is Permission)
-            {
-                val perm = it.msg as Permission
-                commandDefaults[perm.commandName] = perm.type
-            }
-        }
 
         event.server.commandsPlugin.addCommand(
             Commands.construct("permissions", "Handle permissions.") {
@@ -37,11 +31,16 @@ class PermissionsPlugin : Plugin
             }
         )
 
-        commandDefaults["permissions"] = PermissionType.FORBID
+        globals["permissions"] = PermissionType.FORBID
 
         permissions[event.server.serverUser] = ArrayList()
         permissions[event.server.serverUser]!! +=
             Permission("permissions", PermissionType.ALLOW)
+    }
+
+    override fun addGlobalPermission(permission: Permission)
+    {
+        globals[permission.commandName] = permission.type
     }
 
     private fun handleUserJoin(event: UserJoinEvent)
@@ -60,7 +59,7 @@ class PermissionsPlugin : Plugin
         }
 
         if (
-        (commandDefaults[event.commandName] == PermissionType.FORBID
+        (globals[event.commandName] == PermissionType.FORBID
             && !anyPerm(PermissionType.ALLOW)) // No allows for forbidden cmd
             || anyPerm(PermissionType.FORBID)) // Forbids for regular cmd
         {
@@ -86,31 +85,46 @@ class PermissionsPlugin : Plugin
             }
 
             "add" -> {
+                if (params.size < 5)
+                {
+                    event.sendMessageToSender("Usage: !permissions add <user> <command> <type: allow, forbid>")
+                    return
+                }
+
                 val user = params[2]
                 val command = params[3]
                 val type = PermissionType.valueOf(params[4].toUpperCase())
+                val userPermissions = permissions[event.server.getUserById(user)]!!
 
-                permissions[event.server.getUserById(user)]!! +=
+                if (userPermissions.any { it.commandName == command })
+                    userPermissions.removeAll { it.commandName == command }
+
+                userPermissions +=
                     Permission(command, type)
 
                 event.sendMessageToSender("Added a $type permission to $user for $command")
             }
 
-            "remove" -> {
-                val user = params[2]
-                val command = params[3]
-
-                permissions[event.server.getUserById(user)]!!.removeAll {
-                    it.commandName == command
+            "reset" -> {
+                if (params.size < 3)
+                {
+                    event.sendMessageToSender("Usage: !permissions reset <user> [<command>]")
+                    return
                 }
 
-                event.sendMessageToSender("Removed permissions for $command from $user")
+                val user = params[2]
+                val command = params.getOrElse(3, { "" })
+
+                permissions[event.server.getUserById(user)]!!.removeAll {
+                    command == "" || it.commandName == command
+                }
+
+                event.sendMessageToSender("Reset permissions of $user.")
+            }
+
+            else -> {
+                event.sendMessageToSender("Unknown subcommand.")
             }
         }
     }
-
-    class Permission(val commandName: String, val type: PermissionType)
-
-    enum class PermissionType
-    { ALLOW, FORBID }
 }

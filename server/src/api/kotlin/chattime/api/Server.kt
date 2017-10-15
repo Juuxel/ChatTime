@@ -6,6 +6,7 @@ package chattime.api
 
 import chattime.api.event.EventBus
 import chattime.api.features.Commands
+import chattime.api.features.Permissions
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 
@@ -40,6 +41,11 @@ interface Server
      * The [Commands] plugin.
      */
     val commandsPlugin: Commands
+
+    /**
+     * The [Permissions] plugin.
+     */
+    val permissionsPlugin: Permissions
 
     /**
      * Sends a message to the users on the server.
