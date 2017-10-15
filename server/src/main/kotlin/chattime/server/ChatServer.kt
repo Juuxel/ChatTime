@@ -9,7 +9,6 @@ import chattime.api.Server
 import chattime.api.User
 import chattime.api.event.MessageEvent
 import chattime.api.event.UserJoinEvent
-import chattime.api.features.Features
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*
@@ -20,7 +19,6 @@ class ChatServer : Server
     private val mutUsers: ArrayList<User> = arrayListOf(ServerUser)
     private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
     internal val pluginLoader = PluginLoader(this)
-    private val commandPlugin = CommandPlugin()
 
     override val plugins: List<Plugin>
         get() = pluginLoader.plugins
@@ -32,10 +30,13 @@ class ChatServer : Server
 
     override val eventBus = EventBusImpl()
 
+    override val commandsPlugin = CommandPlugin()
+
     init
     {
-        pluginLoader.addPlugin(commandPlugin)
+        pluginLoader.addPlugin(commandsPlugin)
         pluginLoader.addPlugin(AttributesPlugin())
+        pluginLoader.addPlugin(PermissionsPlugin())
     }
 
     override fun addUser(user: User)
@@ -76,13 +77,15 @@ class ChatServer : Server
             users.filter { whitelist.contains(it) }.forEach { it.sendMessage(msg) }
     }
 
-    @Suppress("unchecked_cast")
-    override fun <P : Plugin> getFeaturePlugin(feature: Features<P>): P
-        = when (feature)
-        {
-            Features.commands -> commandPlugin as P
-            else -> throw IllegalArgumentException("Unknown feature $feature")
-        }
+    override fun getUserById(id: String): User
+    {
+        val anyUsers = users.any { it.id == id }
+
+        if (anyUsers)
+            return users.first { it.id == id }
+        else
+            throw IllegalArgumentException("No user with id '$id'")
+    }
 
     object ServerUser : User
     {

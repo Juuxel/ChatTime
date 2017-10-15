@@ -5,7 +5,7 @@
 package chattime.api
 
 import chattime.api.event.EventBus
-import chattime.api.features.Features
+import chattime.api.features.Commands
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 
@@ -33,6 +33,13 @@ interface Server
      * The server event bus.
      */
     val eventBus: EventBus
+
+    /* Feature plugins: */
+
+    /**
+     * The [Commands] plugin.
+     */
+    val commandsPlugin: Commands
 
     /**
      * Sends a message to the users on the server.
@@ -80,10 +87,12 @@ interface Server
     fun getPluginProperties(plugin: Plugin): PluginProperties
 
     /**
-     * Gets a plugin for a [Features] id.
+     * Gets a [User] by their [User.id].
+     * If a user by [id] is not found, throws [IllegalArgumentException].
      *
-     * @param feature the feature id
-     * @return a feature plugin
+     * @param id the id
+     * @return the user of [id]
+     * @throws IllegalArgumentException if user is not found
      */
-    fun <P : Plugin> getFeaturePlugin(feature: Features<P>): P
+    fun getUserById(id: String): User
 }

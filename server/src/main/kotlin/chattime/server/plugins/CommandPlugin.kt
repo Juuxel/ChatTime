@@ -4,10 +4,7 @@
  */
 package chattime.server.plugins
 
-import chattime.api.event.EventType
-import chattime.api.event.MessageEvent
-import chattime.api.event.PluginLoadEvent
-import chattime.api.event.UserJoinEvent
+import chattime.api.event.*
 import chattime.api.features.Commands
 import chattime.api.features.Commands.Command
 import chattime.common.Info
@@ -55,7 +52,17 @@ class CommandPlugin : Commands
     {
         val commandName = Commands.getCommandParams(event.msg)[0]
         var commandFound = false
+        val commandEvent = CommandEvent(event.server, commandName,
+                                        event.msg, event.sender)
 
+        // Fire the command event
+        event.eventBus.post(commandEvent)
+
+        // Check if canceled
+        if (commandEvent.isCanceled)
+            return
+
+        // Handle the command
         mutCommands.forEach {
             if (it.name == commandName)
             {
@@ -202,7 +209,7 @@ class CommandPlugin : Commands
             return
         }
 
-        val user = event.server.users.first { it.id == params[1] }.name
+        val user = event.server.getUserById(params[1]).name
 
         event.sendMessageToSender("${params[1]} is $user")
     }

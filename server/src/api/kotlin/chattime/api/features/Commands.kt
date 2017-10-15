@@ -49,7 +49,8 @@ interface Commands : Plugin
         }
 
         /**
-         * Splits the command into a list of parameters.
+         * Splits the command into a list of parameters,
+         * starting with the command name.
          *
          * @param msg the chat message with the command
          * @param joinLastParam if true, counts all of the text in the end as

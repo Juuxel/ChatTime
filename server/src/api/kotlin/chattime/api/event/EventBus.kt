@@ -20,7 +20,7 @@ interface EventBus
      * @param block the event handler function
      */
     fun <E : Event> subscribe(eventType: EventType<E>,
-                                                 block: (E) -> Unit)
+                              block: (E) -> Unit)
 
     /**
      * Posts [event] to the event bus and calls

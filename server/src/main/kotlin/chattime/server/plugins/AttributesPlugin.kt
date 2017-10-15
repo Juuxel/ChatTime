@@ -7,7 +7,6 @@ package chattime.server.plugins
 import chattime.api.User
 import chattime.api.event.*
 import chattime.api.features.Commands
-import chattime.api.features.Features
 import chattime.api.plugin.LoadOrder
 import chattime.api.plugin.Plugin
 
@@ -27,9 +26,8 @@ class AttributesPlugin : Plugin
 
     override fun load(event: PluginLoadEvent)
     {
-        event.server
-            .getFeaturePlugin(Features.commands)
-            .addCommand(Commands.construct("attributes", CommandPlugin.Desc.attributes) {
+        event.server.commandsPlugin.addCommand(
+            Commands.construct("attributes", CommandPlugin.Desc.attributes) {
                 attributeCommand(it)
             })
 

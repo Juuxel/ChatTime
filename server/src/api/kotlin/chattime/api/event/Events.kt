@@ -33,6 +33,7 @@ abstract class Event(
 
 /**
  * Represents an event that can be canceled.
+ *
  * If an event is canceled, the final action after the event
  * should not be called.
  *
@@ -129,5 +130,8 @@ open class EventType<E : Event> protected constructor(
 
         /** The event type of [MessageEvent]. */
         val chatMessage = EventType(MessageEvent::class.java)
+
+        /** The event type of [CommandEvent].*/
+        val commandCall = EventType(CommandEvent::class.java)
     }
 }
