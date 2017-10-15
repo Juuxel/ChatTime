@@ -74,7 +74,7 @@ class PermissionsPlugin : Permissions
 
         if (params.size < 2)
         {
-            event.sendMessageToSender("Usage: !permissions <subcommand: list, add, remove>")
+            event.sendMessageToSender("Usage: !permissions <subcommand: list, add, reset>")
             return
         }
 
@@ -123,7 +123,7 @@ class PermissionsPlugin : Permissions
             }
 
             else -> {
-                event.sendMessageToSender("Unknown subcommand.")
+                event.sendMessageToSender("Unknown subcommand '${params[1]}'.")
             }
         }
     }
