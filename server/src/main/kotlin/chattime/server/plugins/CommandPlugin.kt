@@ -1,7 +1,6 @@
-/* This file is a part of the ChatTime project.
- * ChatTime is distributed under the GNU GPLv3 license.
- * Source code is available at https://github.com/Juuxel/ChatTime.
- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.server.plugins
 
 import chattime.api.event.*
@@ -218,6 +217,8 @@ class CommandPlugin : Commands
     {
         event.sendMessageToSender(Info.fullVersion)
         event.sendMessageToSender("Made by Juuxel")
+        event.sendMessageToSender("Licensed under MPL v2.0")
+        event.sendMessageToSender("See more info at ${Info.url}")
         event.sendMessageToSender("-=-=-=-=-")
         event.sendMessageToSender("Open Source Libraries:")
         event.sendMessageToSender("- picocli (https://github.com/remkop/picocli)")
