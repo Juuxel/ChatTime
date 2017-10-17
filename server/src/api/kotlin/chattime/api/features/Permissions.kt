@@ -3,18 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.api.features
 
+import chattime.api.User
 import chattime.api.plugin.LoadOrder
 import chattime.api.plugin.LoadOrder.After
 import chattime.api.plugin.Plugin
 
 /**
- * Permissions is a feature plugin for forbidding and allowing use of commands.
+ * Permissions is a feature plugin for forbidding and allowing
+ * the use of different user actions, such as commands.
  *
  * ## The `!permissions` command
  *
  * - Permission adds a new command, `permissions`.
- * - Default permission: [PermissionType.FORBID]
- *   - [PermissionType.ALLOW] for the server user
+ * - By default the use of `add` and `reset` is forbidden
+ *   - Allowed for the server user
+ *   - `list` is allowed by default
  * - Usage: `!permissions <subcommand: list, add, remove>`
  *   - `list <user id>`: Lists the permission of `<user id>`
  *   - `add <user id> <command name> <type>`: Adds a new permission of `<type>`
@@ -24,6 +27,11 @@ import chattime.api.plugin.Plugin
  *   - `reset <user id> [<command name>]`: Resets all permissions
  *     for `<command name>` from `<user id>`
  *     - If `<command name>` is not set, resets all permissions
+ *
+ * ## Command permissions
+ *
+ * The names of command permissions are `command.{command name}`.
+ * For subcommands this pattern is used: `command.{command name}.{subcommand}`.
  */
 interface Permissions : Plugin
 {
@@ -35,43 +43,42 @@ interface Permissions : Plugin
         get() = listOf(After("Commands", isRequired = true))
 
     /**
-     * Makes [permission] the default permission for its command.
+     * Makes [permission] the default permission for its action.
      *
-     * If no global permission is set for a command,
-     * it will be [PermissionType.ALLOW].
+     * If no global permission is set for an action,
+     * it will be allowed.
      *
      * @param permission the permission
      */
     fun addGlobalPermission(permission: Permission)
 
     /**
-     * A permission applying to the use of [commandName].
+     * Checks if [user] has the permission to use [action],
+     * or a matching global permission for it.
+     *
+     * @param user the user
+     * @param action the action
+     * @return true if [user] can use [action], false otherwise
+     */
+    fun hasPermission(user: User, action: String): Boolean
+
+    /**
+     * A permission applying to [action].
      *
      * @constructor The primary constructor.
      *
-     * @param commandName the command name
-     * @param type the [PermissionType]
+     * @param action the action
+     * @param isAllowed is the action allowed
      */
-    class Permission(
-        /** The command name. */
-        val commandName: String,
-        /** The command type. */
-        val type: PermissionType)
-
-    /**
-     * A permission type, either [ALLOW] or [FORBID].
-     */
-    enum class PermissionType
+    data class Permission(
+        /** The action. */
+        val action: String,
+        /** True if the action is allowed. */
+        val isAllowed: Boolean)
     {
-        /**
-         * Allows the use of a command,
-         * which may be forbidden otherwise by a global permission.
-         *
-         * @see Permissions.addGlobalPermission
-         */
-        ALLOW,
+        override fun equals(other: Any?): Boolean
+            = other is Permission && other.action == action
 
-        /** Forbids the use of a command. */
-        FORBID
+        override fun hashCode(): Int = action.hashCode()
     }
 }

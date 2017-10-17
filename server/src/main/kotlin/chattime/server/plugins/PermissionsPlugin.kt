@@ -14,8 +14,12 @@ class PermissionsPlugin : Permissions
     private val permissions: HashMap<User, ArrayList<Permission>>
     = HashMap()
 
-    private val globals: HashMap<String, PermissionType>
+    private val globals: HashMap<String, Boolean>
     = HashMap()
+
+    private val addPermission = "command.permissions.add"
+    private val resetPermission = "command.permissions.reset"
+    private val listPermission = "command.permissions.list"
 
     override val id = "Permissions"
 
@@ -30,17 +34,31 @@ class PermissionsPlugin : Permissions
             }
         )
 
-        globals["permissions"] = PermissionType.FORBID
+        // Forbid the use of permissions add and reset by default
+        globals[addPermission] = false
+        globals[resetPermission] = false
 
+        // Add the server user's permission list
         permissions[event.server.serverUser] = ArrayList()
+
+        // Allow the use of permissions to the server
         permissions[event.server.serverUser]!! +=
-            Permission("permissions", PermissionType.ALLOW)
+            Permission(addPermission, true)
+
+        permissions[event.server.serverUser]!! +=
+            Permission(resetPermission, true)
     }
 
     override fun addGlobalPermission(permission: Permission)
     {
-        globals[permission.commandName] = permission.type
+        globals[permission.action] = permission.isAllowed
     }
+
+    override fun hasPermission(user: User, action: String): Boolean
+        = globals[action] == true
+          || permissions[user]?.any {
+              it.action == action && it.isAllowed
+          } == true
 
     private fun handleUserJoin(event: UserJoinEvent)
     {
@@ -51,18 +69,18 @@ class PermissionsPlugin : Permissions
     {
         val userPerms = permissions[event.sender] ?: return
 
-        fun anyPerm(type: PermissionType): Boolean
+        fun anyPerm(isAllowed: Boolean): Boolean
             = userPerms.any {
-            it.commandName == event.commandName
-            && it.type == type
+            it.action == event.commandName
+            && it.isAllowed == isAllowed
         }
 
         if (
-        (globals[event.commandName] == PermissionType.FORBID
-            && !anyPerm(PermissionType.ALLOW)) // No allows for forbidden cmd
-            || anyPerm(PermissionType.FORBID)) // Forbids for regular cmd
+        (globals["command." + event.commandName] == false
+            && !anyPerm(true)) // No allows for forbidden cmd
+            || anyPerm(false)) // Forbids for regular cmd
         {
-            event.pluginMessage("Usage of !${event.commandName} denied.")
+            event.forbidMessage('!' + event.commandName)
             event.cancel()
         }
     }
@@ -80,40 +98,58 @@ class PermissionsPlugin : Permissions
         when (params[1])
         {
             "list" -> {
+                if (!hasPermission(event.sender, listPermission))
+                {
+                    event.forbidMessage(listPermission)
+                    return
+                }
+
                 val user = params.getOrElse(2) { event.sender.id }
 
                 event.pluginMessage("Permissions of $user:")
 
                 permissions[event.server.getUserById(user)]!!.forEach {
-                    event.sendMessageToSender("- ${it.commandName}: ${it.type}")
+                    event.sendMessageToSender("- ${it.action}: ${it.isAllowed}")
                 }
             }
 
             "add" -> {
+                if (!hasPermission(event.sender, addPermission))
+                {
+                    event.forbidMessage(addPermission)
+                    return
+                }
+
                 if (params.size < 5)
                 {
-                    event.pluginMessage("Usage: !permissions add <user> <command> <type: allow, forbid>")
+                    event.pluginMessage("Usage: !permissions add <user> <action> <isAllowed: true, false>")
                     return
                 }
 
                 val user = params[2]
                 val command = params[3]
-                val type = PermissionType.valueOf(params[4].toUpperCase())
+                val isAllowed = params[4].toBoolean()
                 val userPermissions = permissions[event.server.getUserById(user)]!!
 
-                if (userPermissions.any { it.commandName == command })
-                    userPermissions.removeAll { it.commandName == command }
+                if (userPermissions.any { it.action == command })
+                    userPermissions.removeAll { it.action == command }
 
                 userPermissions +=
-                    Permission(command, type)
+                    Permission(command, isAllowed)
 
-                event.sendMessageToSender("Added a $type permission to $user for $command")
+                event.sendMessageToSender("Added a permission to $user for $command (allowed: $isAllowed)")
             }
 
             "reset" -> {
+                if (!hasPermission(event.sender, resetPermission))
+                {
+                    event.forbidMessage(resetPermission)
+                    return
+                }
+
                 if (params.size < 3)
                 {
-                    event.pluginMessage("Usage: !permissions reset <user> [<command>]")
+                    event.pluginMessage("Usage: !permissions reset <user> [<action>]")
                     return
                 }
 
@@ -121,7 +157,7 @@ class PermissionsPlugin : Permissions
                 val command = params.getOrElse(3, { "" })
 
                 permissions[event.server.getUserById(user)]!!.removeAll {
-                    command == "" || it.commandName == command
+                    command == "" || it.action == command
                 }
 
                 event.pluginMessage("Reset permissions of $user.")
@@ -136,5 +172,10 @@ class PermissionsPlugin : Permissions
     private fun BaseMessageEvent.pluginMessage(msg: String)
     {
         sendMessageToSender("[Permissions] $msg")
+    }
+
+    private fun BaseMessageEvent.forbidMessage(action: String)
+    {
+        pluginMessage("Usage of $action denied.")
     }
 }
