@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.api.features
 
+import chattime.api.plugin.LoadOrder
+import chattime.api.plugin.LoadOrder.After
 import chattime.api.plugin.Plugin
 
 /**
@@ -27,6 +29,10 @@ interface Permissions : Plugin
 {
     override val id: String
         get() = "Permissions"
+
+    // Commands is required providing !permissions
+    override val loadOrder: List<LoadOrder>
+        get() = listOf(After("Commands", isRequired = true))
 
     /**
      * Makes [permission] the default permission for its command.
