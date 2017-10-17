@@ -127,17 +127,23 @@ class PermissionsPlugin : Permissions
                 }
 
                 val user = params[2]
-                val command = params[3]
+                val action = params[3]
                 val isAllowed = params[4].toBoolean()
                 val userPermissions = permissions[event.server.getUserById(user)]!!
 
-                if (userPermissions.any { it.action == command })
-                    userPermissions.removeAll { it.action == command }
+                if (!hasPermission(event.sender, action))
+                {
+                    event.pluginMessage("You can't give others permissions you don't have yourself.")
+                    return
+                }
+
+                if (userPermissions.any { it.action == action })
+                    userPermissions.removeAll { it.action == action }
 
                 userPermissions +=
-                    Permission(command, isAllowed)
+                    Permission(action, isAllowed)
 
-                event.sendMessageToSender("Added a permission to $user for $command (allowed: $isAllowed)")
+                event.sendMessageToSender("Added a permission to $user for $action (allowed: $isAllowed)")
             }
 
             "reset" -> {

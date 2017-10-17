@@ -24,6 +24,7 @@ import chattime.api.plugin.Plugin
  *     to `<user id>` for using `<command name>`
  *     - Type is either `Allow` or `Forbid` (case ignored)
  *     - Replaces any previous permissions for `<command name>`
+ *     - The user can give only permissions that they have themselves
  *   - `reset <user id> [<command name>]`: Resets all permissions
  *     for `<command name>` from `<user id>`
  *     - If `<command name>` is not set, resets all permissions
