@@ -63,7 +63,7 @@ class PermissionsPlugin : Permissions
             && !anyPerm(PermissionType.ALLOW)) // No allows for forbidden cmd
             || anyPerm(PermissionType.FORBID)) // Forbids for regular cmd
         {
-            event.sendMessageToSender("Usage of !${event.commandName} denied.")
+            event.pluginMessage("Usage of !${event.commandName} denied.")
             event.cancel()
         }
     }
@@ -74,20 +74,26 @@ class PermissionsPlugin : Permissions
 
         if (params.size < 2)
         {
-            event.sendMessageToSender("Usage: !permissions <subcommand: list, add, reset>")
+            event.pluginMessage("Usage: !permissions <subcommand: list, add, reset>")
             return
         }
 
         when (params[1])
         {
             "list" -> {
-                // TODO Implement
+                val user = params.getOrElse(2) { event.sender.id }
+
+                event.pluginMessage("Permissions of $user:")
+
+                permissions[event.server.getUserById(user)]!!.forEach {
+                    event.sendMessageToSender("- ${it.commandName}: ${it.type}")
+                }
             }
 
             "add" -> {
                 if (params.size < 5)
                 {
-                    event.sendMessageToSender("Usage: !permissions add <user> <command> <type: allow, forbid>")
+                    event.pluginMessage("Usage: !permissions add <user> <command> <type: allow, forbid>")
                     return
                 }
 
@@ -108,7 +114,7 @@ class PermissionsPlugin : Permissions
             "reset" -> {
                 if (params.size < 3)
                 {
-                    event.sendMessageToSender("Usage: !permissions reset <user> [<command>]")
+                    event.pluginMessage("Usage: !permissions reset <user> [<command>]")
                     return
                 }
 
@@ -119,12 +125,17 @@ class PermissionsPlugin : Permissions
                     command == "" || it.commandName == command
                 }
 
-                event.sendMessageToSender("Reset permissions of $user.")
+                event.pluginMessage("Reset permissions of $user.")
             }
 
             else -> {
-                event.sendMessageToSender("Unknown subcommand '${params[1]}'.")
+                event.pluginMessage("Unknown subcommand '${params[1]}'.")
             }
         }
+    }
+
+    private fun BaseMessageEvent.pluginMessage(msg: String)
+    {
+        sendMessageToSender("[Permissions] $msg")
     }
 }
