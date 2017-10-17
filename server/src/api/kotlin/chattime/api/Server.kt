@@ -26,6 +26,9 @@ interface Server
 
     /**
      * The server console user.
+     *
+     * This user has the id `Server`, all permissions ([Permissions]) by default,
+     * and can't be kicked.
      */
     val serverUser: User
 

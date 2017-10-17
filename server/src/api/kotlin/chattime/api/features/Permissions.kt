@@ -12,6 +12,9 @@ import chattime.api.plugin.Plugin
  * Permissions is a feature plugin for forbidding and allowing
  * the use of different user actions, such as commands.
  *
+ * The server's console user ([chattime.api.Server.serverUser]) has
+ * all permissions by default, and they're non-removable.
+ *
  * ## The `!permissions` command
  *
  * - Permission adds a new command, `permissions`.

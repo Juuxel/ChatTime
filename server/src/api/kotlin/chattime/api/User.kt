@@ -33,4 +33,9 @@ interface User
      * @param msg the message
      */
     fun sendMessage(msg: String)
+
+    /**
+     * Removes this user from the chat.
+     */
+    fun kick()
 }

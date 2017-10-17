@@ -8,6 +8,7 @@ import chattime.api.event.*
 import chattime.api.features.Commands
 import chattime.api.features.Permissions
 import chattime.api.features.Permissions.*
+import chattime.server.Strings
 
 class PermissionsPlugin : Permissions
 {
@@ -34,19 +35,14 @@ class PermissionsPlugin : Permissions
             }
         )
 
+        /// Default permissions ///
+
         // Forbid the use of permissions add and reset by default
         globals[addPermission] = false
         globals[resetPermission] = false
 
-        // Add the server user's permission list
-        permissions[event.server.serverUser] = ArrayList()
-
-        // Allow the use of permissions to the server
-        permissions[event.server.serverUser]!! +=
-            Permission(addPermission, true)
-
-        permissions[event.server.serverUser]!! +=
-            Permission(resetPermission, true)
+        // Forbid kick by default
+        globals["commands.kick"] = false
     }
 
     override fun addGlobalPermission(permission: Permission)
@@ -59,6 +55,7 @@ class PermissionsPlugin : Permissions
           || permissions[user]?.any {
               it.action == action && it.isAllowed
           } == true
+          || user.id == "Server"
 
     private fun handleUserJoin(event: UserJoinEvent)
     {
@@ -104,12 +101,19 @@ class PermissionsPlugin : Permissions
                     return
                 }
 
-                val user = params.getOrElse(2) { event.sender.id }
+                try
+                {
+                    val user = params.getOrElse(2) { event.sender.id }
 
-                event.pluginMessage("Permissions of $user:")
+                    event.pluginMessage("Permissions of $user:")
 
-                permissions[event.server.getUserById(user)]!!.forEach {
-                    event.sendMessageToSender("- ${it.action}: ${it.isAllowed}")
+                    permissions[event.server.getUserById(user)]!!.forEach {
+                        event.sendMessageToSender("- ${it.action}: ${it.isAllowed}")
+                    }
+                }
+                catch (iae: IllegalArgumentException)
+                {
+                    event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
                 }
             }
 
@@ -126,24 +130,31 @@ class PermissionsPlugin : Permissions
                     return
                 }
 
-                val user = params[2]
-                val action = params[3]
-                val isAllowed = params[4].toBoolean()
-                val userPermissions = permissions[event.server.getUserById(user)]!!
-
-                if (!hasPermission(event.sender, action))
+                try
                 {
-                    event.pluginMessage("You can't give others permissions you don't have yourself.")
-                    return
+                    val user = params[2]
+                    val action = params[3]
+                    val isAllowed = params[4].toBoolean()
+                    val userPermissions = permissions[event.server.getUserById(user)]!!
+
+                    if (!hasPermission(event.sender, action))
+                    {
+                        event.pluginMessage("You can't give others permissions you don't have yourself.")
+                        return
+                    }
+
+                    if (userPermissions.any { it.action == action })
+                        userPermissions.removeAll { it.action == action }
+
+                    userPermissions +=
+                        Permission(action, isAllowed)
+
+                    event.sendMessageToSender("Added a permission to $user for $action (allowed: $isAllowed)")
                 }
-
-                if (userPermissions.any { it.action == action })
-                    userPermissions.removeAll { it.action == action }
-
-                userPermissions +=
-                    Permission(action, isAllowed)
-
-                event.sendMessageToSender("Added a permission to $user for $action (allowed: $isAllowed)")
+                catch (iae: IllegalArgumentException)
+                {
+                    event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+                }
             }
 
             "reset" -> {
@@ -159,14 +170,21 @@ class PermissionsPlugin : Permissions
                     return
                 }
 
-                val user = params[2]
-                val command = params.getOrElse(3, { "" })
+                try
+                {
+                    val user = params[2]
+                    val command = params.getOrElse(3, { "" })
 
-                permissions[event.server.getUserById(user)]!!.removeAll {
-                    command == "" || it.action == command
+                    permissions[event.server.getUserById(user)]!!.removeAll {
+                        command == "" || it.action == command
+                    }
+
+                    event.pluginMessage("Reset permissions of $user.")
                 }
-
-                event.pluginMessage("Reset permissions of $user.")
+                catch (iae: IllegalArgumentException)
+                {
+                    event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+                }
             }
 
             else -> {

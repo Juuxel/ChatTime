@@ -66,4 +66,9 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
     {
         clientOut.println(msg)
     }
+
+    override fun kick()
+    {
+        client.close()
+    }
 }

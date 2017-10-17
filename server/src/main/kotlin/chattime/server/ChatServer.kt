@@ -103,5 +103,8 @@ class ChatServer : Server
         {
             println(formatMessage(msg))
         }
+
+        override fun kick()
+        {}
     }
 }

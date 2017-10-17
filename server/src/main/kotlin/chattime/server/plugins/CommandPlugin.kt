@@ -7,6 +7,7 @@ import chattime.api.event.*
 import chattime.api.features.Commands
 import chattime.api.features.Commands.Command
 import chattime.common.Info
+import chattime.server.Strings
 
 class CommandPlugin : Commands
 {
@@ -21,7 +22,8 @@ class CommandPlugin : Commands
         construct("users", Desc.users, CommandPlugin::users),
         construct("pm", Desc.pm, CommandPlugin::pm),
         construct("who-is", Desc.whoIs, CommandPlugin::whoIs),
-        construct("ct-info", Desc.ctInfo, CommandPlugin::ctInfo)
+        construct("ct-info", Desc.ctInfo, CommandPlugin::ctInfo),
+        construct("kick", Desc.kick, CommandPlugin::kick)
     )
 
     override val commands: List<Command>
@@ -208,9 +210,16 @@ class CommandPlugin : Commands
             return
         }
 
-        val user = event.server.getUserById(params[1]).name
+        try
+        {
+            val user = event.server.getUserById(params[1]).name
 
-        event.sendMessageToSender("${params[1]} is $user")
+            event.sendMessageToSender("${params[1]} is $user")
+        }
+        catch (iae: IllegalArgumentException)
+        {
+            event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+        }
     }
 
     private fun ctInfo(event: MessageEvent)
@@ -226,6 +235,30 @@ class CommandPlugin : Commands
         event.sendMessageToSender("- RxKotlin (https://github.com/ReactiveX/RxKotlin)")
     }
 
+    private fun kick(event: MessageEvent)
+    {
+        val params = Commands.getCommandParams(event.msg, joinLastParam = true,
+                                               lastParamIndex = 2)
+
+        if (params.size < 3)
+        {
+            pluginMessage(event, "kick", "Usage: !kick <user id> <msg>")
+            return
+        }
+
+        try
+        {
+            event.server.sendMessage("${event.sender.name} kicked you: ${params[2]}")
+            event.server.getUserById(params[1]).kick()
+        }
+        catch (iae: IllegalArgumentException)
+        {
+            event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+        }
+
+        pluginMessage(event, "kick", "Kicked ${params[1]}.")
+    }
+
     object Desc
     {
         val attributes = "Manage user attributes"
@@ -238,5 +271,6 @@ class CommandPlugin : Commands
         val silent = "Debugs commands silently"
         val users = "Lists all users"
         val whoIs = "Shows the name of a user from an id"
+        val kick = "Kick users from the chat"
     }
 }

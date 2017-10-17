@@ -178,6 +178,14 @@ interface Commands : Plugin
          * - Usage: `!pm <user id> <msg>`
          *   - Sends a message to `<user id>` containing `<msg>`
          */
-        PRIVATE_MESSAGE("pm")
+        PRIVATE_MESSAGE("pm"),
+
+        /**
+         * Removes, or _kicks_, a user from the chat.
+         *
+         * - Usage: `!kick <user id> <msg>`
+         *   - Sends a message with `<msg>` to `<user id>`
+         */
+        KICK("kick")
     }
 }
