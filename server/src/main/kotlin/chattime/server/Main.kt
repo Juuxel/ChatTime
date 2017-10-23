@@ -4,7 +4,6 @@
 package chattime.server
 
 import chattime.common.Info
-import chattime.server.util.JavaHelper
 import picocli.CommandLine
 import java.net.ServerSocket
 import java.nio.file.Files
@@ -20,8 +19,7 @@ fun main(args: Array<String>)
     val commandLine = CommandLine(params)
 
     commandLine.isUnmatchedArgumentsAllowed = true
-
-    JavaHelper.picocliParse(commandLine, args)
+    commandLine.parse(*args)
 
     if (commandLine.isUsageHelpRequested)
     {

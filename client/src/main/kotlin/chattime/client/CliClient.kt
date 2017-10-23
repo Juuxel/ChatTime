@@ -14,7 +14,7 @@ fun cliStart(args: Array<String>)
 {
     val params = CliParams()
     val commandLine = CommandLine(params)
-    JavaHelper.picocliParse(commandLine, args)
+    commandLine.parse(*args)
 
     if (commandLine.isUsageHelpRequested)
     {
