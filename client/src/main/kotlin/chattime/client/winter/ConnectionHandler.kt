@@ -25,9 +25,9 @@ class ConnectionHandler(private val socket: Socket)
             {
                 do
                 {
-                    val output = reader.readLine()
-                    msgHandlers.forEach { it(output) }
-                } while (output != null)
+                    val msg = reader.readLine()
+                    msgHandlers.forEach { it(msg) }
+                } while (msg != null)
             }
             catch (e: Exception)
             {

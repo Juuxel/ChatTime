@@ -1,6 +1,7 @@
 package chattime.client.winter
 
 import javafx.application.Platform
+import javafx.event.EventHandler
 import javafx.event.EventTarget
 import javafx.geometry.Insets
 import javafx.scene.control.Alert
@@ -109,6 +110,14 @@ class WinterView : View("ChatTime Winter")
 
                 messageBox += message(parts.first, parts.second)
             }
+        }
+
+        connectionHandler().handleExit {
+            Platform.exit()
+        }
+
+        primaryStage.onCloseRequest = EventHandler {
+            connectionHandler().close()
         }
     }
 
