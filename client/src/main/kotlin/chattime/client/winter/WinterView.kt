@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.client.winter
 
+import chattime.common.Info
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.event.EventTarget
@@ -18,7 +19,9 @@ class WinterView : View("ChatTime Winter")
     private val box = BorderPane()
     override val root = box
 
-    private val messageBox = VBox(3.0)
+    private val messageBox = VBox(3.0).apply {
+        padding = Insets(3.0)
+    }
 
     init
     {
@@ -57,8 +60,9 @@ class WinterView : View("ChatTime Winter")
                 menu("App") {
                     item("About ChatTime Winter") {
                         action {
-                            alert(Alert.AlertType.INFORMATION, "ChatTime Winter",
-                                  "Made by Juuxel\n\n"
+                            alert(Alert.AlertType.INFORMATION, "ChatTime Winter v${Info.version}",
+                                  "Made by Juuxel\n"
+                                      + "Licensed under MPL\n\n"
                                       + "Open source libraries:\n"
                                       + "- Picocli (GitHub: remkop/picocli)\n"
                                       + "- RxJava and RxKotlin (GitHub: ReactiveX/RxJava, RxKotlin)\n"
@@ -115,9 +119,7 @@ class WinterView : View("ChatTime Winter")
             }
         }
 
-        connectionHandler().handleExit {
-            Platform.exit()
-        }
+        connectionHandler().handleExit(Platform::exit)
 
         primaryStage.onCloseRequest = EventHandler {
             connectionHandler().close()

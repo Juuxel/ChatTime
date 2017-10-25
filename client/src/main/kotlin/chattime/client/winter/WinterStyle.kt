@@ -27,10 +27,6 @@ class WinterStyle : Stylesheet()
             borderColor += box(Color.LIGHTGRAY)
         }
 
-        select(inputPane, textField) {
-            maxWidth = Double.MAX_VALUE.px
-        }
-
         message {
             backgroundColor += Colors.darkColor
             padding = box(.5.em, 1.em)
