@@ -5,7 +5,7 @@ package chattime.common
 
 object Info
 {
-    const val version = "0.2.0-dev"
+    const val version = "0.2.0"
     const val fullVersion = "ChatTime v$version"
     const val url = "https://github.com/Juuxel/ChatTime"
 }
