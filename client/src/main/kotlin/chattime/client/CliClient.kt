@@ -1,16 +1,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+@file:JvmName("CliClient")
 package chattime.client
 
 import chattime.common.Info
 import chattime.common.formatMessage
 import picocli.CommandLine
-import java.io.PrintWriter
 import java.net.InetAddress
 import java.net.Socket
 
-fun cliStart(args: Array<String>)
+fun main(args: Array<String>)
 {
     val params = CliParams()
     val commandLine = CommandLine(params)
