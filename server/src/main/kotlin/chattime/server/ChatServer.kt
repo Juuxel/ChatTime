@@ -8,7 +8,6 @@ import chattime.api.Server
 import chattime.api.User
 import chattime.api.event.MessageEvent
 import chattime.api.event.UserJoinEvent
-import chattime.api.features.Permissions
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*

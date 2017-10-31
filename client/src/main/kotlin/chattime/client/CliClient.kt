@@ -29,40 +29,33 @@ fun cliStart(args: Array<String>)
 
     println("ChatTime client starting up!")
 
-    val server = Socket(params.host, params.port)
+    val socket = Socket(params.host, params.port)
+    val connection = Connection(socket)
 
     println("Connected to the server at ${params.host}:${params.port}")
 
-    val serverIn = server.inputStream.bufferedReader()
-    val serverOut = PrintWriter(server.outputStream, true)
+    connection.toServer("!silent attributes set isEchoingEnabled false") // Send the command to the server to clean up output :-)
 
-    serverOut.println("!silent attributes set isEchoingEnabled false") // Send the command to the server to clean up output :-)
+    Thread({ cliInput(connection) }).start()
 
-    Thread({ cliInput(serverOut) }).start()
-
-    try
-    {
-        do
-        {
-            val output = serverIn.readLine()
-            println(formatMessage(output))
-        } while (output != null)
+    connection.handleMessage {
+        println(formatMessage(it))
     }
-    catch (e: Exception)
-    {
+
+    connection.handleExit {
         println("Disconnected from the server")
         System.exit(0)
     }
 }
 
-private fun cliInput(serverOut: PrintWriter)
+private fun cliInput(connection: Connection)
 {
     do
     {
         val input = readLine()
 
         if (input != "")
-            serverOut.println(input)
+            connection.toServer(input)
     } while (input != null)
 }
 

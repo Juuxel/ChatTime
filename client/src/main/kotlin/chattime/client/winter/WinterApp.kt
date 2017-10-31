@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.client.winter
 
+import chattime.client.Connection
 import javafx.scene.control.Alert
 import javafx.scene.control.TextInputDialog
 import javafx.stage.Stage
 import tornadofx.*
 import java.net.Socket
 
-var connectionHandler: () -> ConnectionHandler = {
+var connection: () -> Connection = {
     throw IllegalStateException()
 }
     private set
@@ -29,9 +30,9 @@ class WinterApp : App(WinterView::class, WinterStyle::class)
 
             val split = address.split(':')
 
-            val handler = ConnectionHandler(Socket(split[0], split[1].toInt()))
+            val handler = Connection(Socket(split[0], split[1].toInt()))
 
-            connectionHandler = { handler }
+            connection = { handler }
         }
         catch (e: Exception)
         {

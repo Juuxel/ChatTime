@@ -36,7 +36,7 @@ class WinterView : View("ChatTime Winter")
                         hgrow = Priority.ALWAYS
 
                         action {
-                            connectionHandler().toServer(text)
+                            connection().toServer(text)
                             clear()
                         }
                     }
@@ -45,7 +45,7 @@ class WinterView : View("ChatTime Winter")
                         addClass(WinterStyle.sendButton)
 
                         action {
-                            connectionHandler().toServer(field.text)
+                            connection().toServer(field.text)
                             field.clear()
                         }
                     }
@@ -74,7 +74,7 @@ class WinterView : View("ChatTime Winter")
                     item("Close") {
                         action {
                             primaryStage.close()
-                            connectionHandler().close()
+                            connection().close()
                         }
                     }
                 }
@@ -96,7 +96,7 @@ class WinterView : View("ChatTime Winter")
             */
         }
 
-        connectionHandler().handleMessage { msg ->
+        connection().handleMessage { msg ->
             Platform.runLater {
                 val parts = {
                     when
@@ -119,10 +119,10 @@ class WinterView : View("ChatTime Winter")
             }
         }
 
-        connectionHandler().handleExit(Platform::exit)
+        connection().handleExit(Platform::exit)
 
         primaryStage.onCloseRequest = EventHandler {
-            connectionHandler().close()
+            connection().close()
         }
     }
 

@@ -1,14 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package chattime.client.winter
+package chattime.client
 
 import java.io.PrintWriter
 import java.net.Socket
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
-class ConnectionHandler(private val socket: Socket)
+class Connection(private val socket: Socket)
 {
     private val streamFromServer = socket.getInputStream()
     private val streamToServer = socket.getOutputStream()
@@ -46,10 +46,11 @@ class ConnectionHandler(private val socket: Socket)
         exitHandlers += block
     }
 
-    fun toServer(string: String)
+    fun toServer(string: String?)
     {
         printer.println(string)
         printer.flush()
     }
+
     fun close() = socket.close()
 }
