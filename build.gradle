@@ -1,16 +1,12 @@
 // Kotlin stuff
 buildscript {
-    ext.kotlin_version = '1.2.0-beta-31'
+    ext.kotlin_version = '1.2.0'
     ext.dokka_version = '0.9.15'
     ext.shadow_version = '2.0.1'
 
     repositories {
         mavenCentral()
         jcenter()
-
-        maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.2"
-        }
     }
 
     dependencies {
@@ -28,15 +24,11 @@ allprojects {
     group = 'chattime'
     version = projectVersion
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
 
     repositories {
         mavenCentral()
-
-        maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.2"
-        }
     }
 
     dependencies {
@@ -105,5 +97,5 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.1'
+    gradleVersion = '4.3.1'
 }
