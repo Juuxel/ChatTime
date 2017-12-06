@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.api.event
 
+import java.util.function.Consumer
+
 /**
  * A simple event bus which distributes [Event] objects
  * to event handlers.
@@ -20,6 +22,19 @@ interface EventBus
      */
     fun <E : Event> subscribe(eventType: EventType<E>,
                               block: (E) -> Unit)
+
+    /**
+     * A Java compatibility version (no function types) of
+     * `EventBus.subscribe`.
+     *
+     * @param E the generic event type
+     * @param eventType the [EventType] object representing [E]
+     * @param handler the event handler
+     *
+     * @see EventBus.subscribe
+     */
+    fun <E : Event> subscribe(eventType: EventType<E>,
+                              handler: EventHandler<E>)
 
     /**
      * Posts [event] to the event bus and calls

@@ -5,6 +5,7 @@ package chattime.server
 
 import chattime.api.event.Event
 import chattime.api.event.EventBus
+import chattime.api.event.EventHandler
 import chattime.api.event.EventType
 import io.reactivex.subjects.PublishSubject
 
@@ -15,6 +16,11 @@ class EventBusImpl : EventBus
     override fun <E : Event> subscribe(eventType: EventType<E>, block: (E) -> Unit)
     {
         subject.ofType(eventType.eventClass).subscribe(block)
+    }
+
+    override fun <E : Event> subscribe(eventType: EventType<E>, handler: EventHandler<E>)
+    {
+        subject.ofType(eventType.eventClass).subscribe(handler::handle)
     }
 
     override fun post(event: Event) = subject.onNext(event)

@@ -119,18 +119,18 @@ open class EventType<E : Event> protected constructor(
     companion object
     {
         /** The event type of [UserJoinEvent]. */
-        val userJoin = EventType(UserJoinEvent::class.java)
+        @JvmField val userJoin = EventType(UserJoinEvent::class.java)
 
         /** The event type of [PluginMessageEvent]. */
-        val pluginMessage = EventType(PluginMessageEvent::class.java)
+        @JvmField val pluginMessage = EventType(PluginMessageEvent::class.java)
 
         /** The event type of [PluginLoadEvent]. */
-        val pluginLoad = EventType(PluginLoadEvent::class.java)
+        @JvmField val pluginLoad = EventType(PluginLoadEvent::class.java)
 
         /** The event type of [MessageEvent]. */
-        val chatMessage = EventType(MessageEvent::class.java)
+        @JvmField val chatMessage = EventType(MessageEvent::class.java)
 
         /** The event type of [CommandEvent].*/
-        val commandCall = EventType(CommandEvent::class.java)
+        @JvmField val commandCall = EventType(CommandEvent::class.java)
     }
 }

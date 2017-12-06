@@ -5,6 +5,7 @@ package chattime.api.features
 
 import chattime.api.event.MessageEvent
 import chattime.api.plugin.Plugin
+import java.util.function.Consumer
 
 /**
  * Commands is a feature plugin for using chat commands.
@@ -36,6 +37,22 @@ interface Commands : Plugin
         fun construct(name: String, desc: String,
                       block: (MessageEvent) -> Unit): Command
         = SimpleCommand(name, desc, block)
+
+        /**
+         * A Java compatibility version (no function types)
+         * of `Commands.construct`.
+         *
+         * @param name the command name
+         * @param desc the command description
+         * @param consumer the command function
+         *
+         * @return a command
+         *
+         * @see Commands.construct
+         */
+        fun construct(name: String, desc: String,
+                      consumer: Consumer<MessageEvent>): Command
+            = SimpleCommand(name, desc, consumer::accept)
 
         private class SimpleCommand(override val name: String,
                                     override val description: String,
