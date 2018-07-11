@@ -39,37 +39,14 @@ allprojects {
 project(":server") {
     apply plugin: 'org.jetbrains.dokka'
 
-    sourceSets {
-        api
-    }
-
     dokka {
         outputFormat = 'html'
         outputDirectory = "$buildDir/javadoc"
-
-        kotlinTasks {
-            [compileApiKotlin]
-        }
     }
 
     dependencies {
-        compile sourceSets.api.output
         compile "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
-        apiCompile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     }
-
-    jar {
-        from sourceSets.main.output
-        from sourceSets.api.output
-    }
-
-    task apiJar(type: Jar) {
-        classifier = 'api'
-
-        from sourceSets.api.output
-    }
-
-    apiJar.baseName = "ChatTime-${project.name}"
 }
 
 project(":client") {
@@ -78,9 +55,10 @@ project(":client") {
     }
 }
 
-subprojects {
+configure(subprojects.findAll { it.name == 'client' || it.name == 'server' }) {
     dependencies {
         compile project(':')
+        compile project(':api')
         compile "info.picocli:picocli:$picocliVersion"
     }
 
