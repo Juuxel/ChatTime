@@ -8,7 +8,7 @@ import chattime.api.event.*
 import chattime.api.features.Commands
 import chattime.api.features.Permissions
 import chattime.api.features.Permissions.*
-import chattime.server.Strings
+import chattime.server.L10n
 
 class PermissionsPlugin : Permissions
 {
@@ -30,7 +30,7 @@ class PermissionsPlugin : Permissions
         event.eventBus.subscribe(EventType.userJoin) { handleUserJoin(it) }
 
         event.server.commandsPlugin.addCommand(
-            Commands.construct("permissions", "Handle permissions.") {
+            Commands.construct("permissions", "Handle permissions.") { // TODO l10n
                 permissionCommand(it)
             }
         )
@@ -105,7 +105,7 @@ class PermissionsPlugin : Permissions
                 {
                     val user = params.getOrElse(2) { event.sender.id }
 
-                    event.pluginMessage("Permissions of $user:")
+                    event.pluginMessage(L10n["commands.permissions.ofUser", user])
 
                     permissions[event.server.getUserById(user)]!!.forEach {
                         event.sendMessageToSender("- ${it.action}: ${it.isAllowed}")
@@ -113,7 +113,7 @@ class PermissionsPlugin : Permissions
                 }
                 catch (iae: IllegalArgumentException)
                 {
-                    event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+                    event.sendMessageToSender(iae.message ?: L10n["error.generic"])
                 }
             }
 
@@ -153,7 +153,7 @@ class PermissionsPlugin : Permissions
                 }
                 catch (iae: IllegalArgumentException)
                 {
-                    event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+                    event.sendMessageToSender(iae.message ?: L10n["error.generic"])
                 }
             }
 
@@ -183,7 +183,7 @@ class PermissionsPlugin : Permissions
                 }
                 catch (iae: IllegalArgumentException)
                 {
-                    event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+                    event.sendMessageToSender(iae.message ?: L10n["error.generic"])
                 }
             }
 

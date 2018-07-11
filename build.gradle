@@ -1,7 +1,7 @@
 // Kotlin stuff
 buildscript {
-    ext.kotlin_version = '1.2.0'
-    ext.dokka_version = '0.9.15'
+    ext.kotlin_version = '1.2.50'
+    ext.dokka_version = '0.9.17'
     ext.shadow_version = '2.0.1'
 
     repositories {
@@ -24,15 +24,15 @@ allprojects {
     group = 'chattime'
     version = projectVersion
 
-    sourceCompatibility = JavaVersion.VERSION_1_9
-    targetCompatibility = JavaVersion.VERSION_1_9
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
     repositories {
         mavenCentral()
     }
 
     dependencies {
-        compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     }
 }
 
@@ -55,7 +55,7 @@ project(":server") {
     dependencies {
         compile sourceSets.api.output
         compile "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
-        apiCompile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
+        apiCompile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     }
 
     jar {

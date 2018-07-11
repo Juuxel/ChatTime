@@ -23,8 +23,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
         private val rng = Random()
 
         /**
-         * Generates a four-digit number for a user id (includes leading
-         * zeros).
+         * Generates a four-digit number for a user id (includes leading zeros).
          *
          * @return a number for a user id
          */
@@ -56,7 +55,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
         }
         catch (e: Exception)
         {
-            server.sendMessage("$name left the chat room")
+            server.sendMessage(L10n["user.left", name])
             client.close() // Close the socket just in case
         }
 

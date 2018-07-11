@@ -9,6 +9,7 @@ import chattime.api.event.EventType
 import chattime.api.event.PluginLoadEvent
 import chattime.api.plugin.LoadOrder
 import chattime.api.plugin.Plugin
+import chattime.server.L10n
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -79,7 +80,7 @@ class PluginLoader(private val server: ChatServer)
         val sortedLoadList = pluginLoadList.sortedWith(Comparator { p1, p2 ->
             if (doesLoadOrderConflict(p1, p2))
             {
-                println("Plugin load orders conflict: ${p1.id}, ${p2.id}")
+                println(L10n["plugins.loadOrderConflict", p1.id, p2.id])
                 pluginLoadList.removeAll(listOf(p1, p2))
             }
 
@@ -101,7 +102,7 @@ class PluginLoader(private val server: ChatServer)
 
             if (!pluginProps["enabled", "true"].toBoolean())
             {
-                println("Plugin ${plugin.id} is disabled, skipping loading...")
+                println(L10n["plugins.disabled", plugin.id])
                 disabledMarkings += plugin
                 continue
             }
@@ -111,7 +112,7 @@ class PluginLoader(private val server: ChatServer)
                 if (!sortedLoadList.any { it.id == requiredPlugin.id }
                     || disabledMarkings.any { it.id == requiredPlugin.id })
                 {
-                    println("Required plugin ${requiredPlugin.id} for ${plugin.id} not found, skipping loading...")
+                    println(L10n["plugins.missingDependency", requiredPlugin.id, plugin.id])
                     continue@mainPlugins
                 }
             }

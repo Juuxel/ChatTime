@@ -32,25 +32,25 @@ fun main(args: Array<String>)
         return
     }
 
-    println("ChatTime server starting up!")
+    println(L10n["server.start"])
 
     val server = ChatServer()
 
 	loadProperties()
 
 	if (properties.getProperty("server.port") == null)
-		properties.put("server.port", "25550")
+        properties["server.port"] = "25550"
 
 	val port = properties.getProperty("server.port").toInt()
     val socket = ServerSocket(port)
 
-    println("Socket opened at $port")
+    println(L10n["server.socketOpened", port])
 
     params.plugins.forEach {
         server.pluginLoader.addPlugin(className = it)
     }
 
-    Thread({ serverToClients(server) }).start()
+    Thread { serverToClients(server) }.start()
     server.pluginLoader.findPluginsFromDirectory("plugins")
     server.pluginLoader.loadPlugins()
 
@@ -70,7 +70,7 @@ private fun serverToClients(server: ChatServer)
     {
         val input = readLine()
 
-        if (input != null && input != "") // "input.isNullOrEmpty()" didn't do the "smart cast" :-(
+        if (input != null && input != "") // "!input.isNullOrEmpty()" didn't do the smart cast :-(
             server.forwardMessageFromUser(input, server.serverUser)
     } while (input != null)
 }

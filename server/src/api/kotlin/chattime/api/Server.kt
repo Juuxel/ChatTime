@@ -8,6 +8,7 @@ import chattime.api.features.Commands
 import chattime.api.features.Permissions
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
+import chattime.api.util.Localization
 
 /**
  * The chat server which handles all messaging, plugins and users.
@@ -48,6 +49,11 @@ interface Server
      * The [Permissions] plugin.
      */
     val permissionsPlugin: Permissions
+
+    /**
+     * The [Localization] object.
+     */
+    val l10n: Localization
 
     /**
      * Sends a message to the users on the server.

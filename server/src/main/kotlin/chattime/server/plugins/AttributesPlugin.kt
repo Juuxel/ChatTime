@@ -9,6 +9,7 @@ import chattime.api.features.Commands
 import chattime.api.plugin.LoadOrder
 import chattime.api.plugin.Plugin
 
+// TODO l10n
 class AttributesPlugin : Plugin
 {
     override val id: String = "Attributes"

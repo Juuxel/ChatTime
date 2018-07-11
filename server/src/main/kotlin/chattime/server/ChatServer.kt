@@ -29,6 +29,8 @@ class ChatServer : Server
 
     override val eventBus = EventBusImpl()
 
+    override val l10n = L10n
+
     // Feature plugins
 
     override val commandsPlugin = CommandPlugin()
@@ -47,11 +49,11 @@ class ChatServer : Server
 
         eventBus.post(UserJoinEvent(this, user))
 
-        sendMessage("${user.name} joined the chat room")
+        sendMessage(L10n["user.join", user.name])
     }
 
     override fun getPluginProperties(plugin: Plugin): PluginProperties
-        = pluginPropertiesMap.getOrPut(plugin, { PluginPropertiesImpl(plugin) })
+        = pluginPropertiesMap.getOrPut(plugin) { PluginPropertiesImpl(plugin) }
 
     @Synchronized
     override fun forwardMessageFromUser(msg: String, sender: User)
@@ -86,7 +88,7 @@ class ChatServer : Server
         if (anyUsers)
             return users.first { it.id == id }
         else
-            throw IllegalArgumentException("No user with id '$id'")
+            throw IllegalArgumentException(L10n["error.userNotFound", id])
     }
 
     object ServerUser : User
@@ -96,7 +98,7 @@ class ChatServer : Server
 
         override var isEchoingEnabled: Boolean
             get() = false
-            set(value) = Unit
+            set(_) = Unit
 
         override fun sendMessage(msg: String)
         {

@@ -7,7 +7,7 @@ import chattime.api.event.*
 import chattime.api.features.Commands
 import chattime.api.features.Commands.Command
 import chattime.common.Info
-import chattime.server.Strings
+import chattime.server.L10n
 
 class CommandPlugin : Commands
 {
@@ -22,7 +22,7 @@ class CommandPlugin : Commands
         construct("users", Desc.users, CommandPlugin::users),
         construct("pm", Desc.pm, CommandPlugin::pm),
         construct("who-is", Desc.whoIs, CommandPlugin::whoIs),
-        construct("ct-info", Desc.ctInfo, CommandPlugin::ctInfo),
+        construct("about", Desc.ctInfo, CommandPlugin::ctInfo),
         construct("kick", Desc.kick, CommandPlugin::kick)
     )
 
@@ -39,8 +39,8 @@ class CommandPlugin : Commands
     {
         val userList = listOf(event.user)
 
-        event.server.sendMessage("Commands are enabled in this chat room.", whitelist = userList)
-        event.server.sendMessage("Type !help for more information.", whitelist = userList)
+        event.server.sendMessage(L10n["commands.start1"], whitelist = userList)
+        event.server.sendMessage(L10n["commands.start2"], whitelist = userList)
     }
 
     private fun onMessageReceived(event: MessageEvent)
@@ -73,7 +73,8 @@ class CommandPlugin : Commands
         }
 
         if (!commandFound)
-            event.server.sendMessage("Command '$commandName' not found.", whitelist = listOf(event.sender))
+            event.server.sendMessage(L10n["commands.commandNotFound", commandName],
+                                     whitelist = listOf(event.sender))
     }
 
     override fun addCommand(command: Commands.Command)
@@ -95,7 +96,7 @@ class CommandPlugin : Commands
 
     private fun help(event: MessageEvent)
     {
-        pluginMessage(event, "help", "List of commands available:")
+        pluginMessage(event, "help", L10n["commands.help.all"])
 
         commands.sortedBy { it.name }.forEach {
             event.sendMessageToSender("- ${it.name}: ${it.description}")
@@ -114,11 +115,10 @@ class CommandPlugin : Commands
             val users = event.server.users
 
             if (users.none { it.name.contains(userName, ignoreCase = true) })
-                pluginMessage(event, "id", "No users found with name '$userName'")
+                pluginMessage(event, "id", L10n["commands.id.noUsersFound", userName])
             else
             {
-                pluginMessage(event, "id",
-                              "List of all users with '$userName' in their name:")
+                pluginMessage(event, "id", L10n["commands.id.usersFound", userName])
 
                 users.filter {
                     it.name.contains(userName, ignoreCase = true)
@@ -138,19 +138,19 @@ class CommandPlugin : Commands
                                                lastParamIndex = 1)
 
         if (params.size == 1)
-            pluginMessage(event, "rename", "Type a new name.")
+            pluginMessage(event, "rename", L10n["commands.rename.noNameGiven"])
         else
         {
             val oldName = event.sender.name
             val newName = params[1]
             event.sender.name = newName
-            event.server.sendMessage("Renamed $oldName → $newName")
+            event.server.sendMessage(L10n["commands.rename.renamed"].format(oldName, newName))
         }
     }
 
     private fun plugins(event: MessageEvent)
     {
-        pluginMessage(event, "plugins", "List of loaded plugins:")
+        pluginMessage(event, "plugins", L10n["commands.plugins.all"])
 
         event.server.plugins.sortedBy { it.id }.forEach {
             event.sendMessageToSender("- ${it.id}")
@@ -175,7 +175,7 @@ class CommandPlugin : Commands
 
     private fun users(event: MessageEvent)
     {
-        pluginMessage(event, "users", "Users in the chat:")
+        pluginMessage(event, "users", L10n["commands.users.all"])
 
         event.server.users.sortedBy { it.name }.forEach {
             event.sendMessageToSender("- ${it.name}")
@@ -206,7 +206,7 @@ class CommandPlugin : Commands
 
         if (params.size < 2)
         {
-            pluginMessage(event, "whois", "Usage: !whois <user id>")
+            pluginMessage(event, "who-is", "Usage: !who-is <user id>")
             return
         }
 
@@ -214,11 +214,11 @@ class CommandPlugin : Commands
         {
             val user = event.server.getUserById(params[1]).name
 
-            event.sendMessageToSender("${params[1]} is $user")
+            event.sendMessageToSender(L10n["commands.who-is.message", params[1], user])
         }
         catch (iae: IllegalArgumentException)
         {
-            event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+            event.sendMessageToSender(iae.message ?: L10n["error.generic"])
         }
     }
 
@@ -248,25 +248,26 @@ class CommandPlugin : Commands
 
         try
         {
-            event.server.sendMessage("${event.sender.name} kicked you: ${params[2]}")
             event.server.getUserById(params[1]).kick()
+            event.server.sendMessage(L10n["commands.kick.message", event.sender.name, params[2]],
+                                     whitelist = listOf(event.server.getUserById(params[1])))
+
+            pluginMessage(event, "kick", L10n["commands.kick.kickerMessage", params[1]])
         }
         catch (iae: IllegalArgumentException)
         {
-            event.sendMessageToSender(iae.message ?: Strings.unspecifiedError)
+            event.sendMessageToSender(iae.message ?: L10n["error.generic"])
         }
-
-        pluginMessage(event, "kick", "Kicked ${params[1]}.")
     }
 
-    object Desc
+    object Desc // TODO Translate command desc
     {
         val attributes = "Manage user attributes"
-        val ctInfo = "Information about ChatTime"
+        val ctInfo = L10n["commands.about.desc"]
         val help = "Shows information about commands"
         val id = "Shows user ids"
         val plugins = "Lists all plugins"
-        val pm = "Message someone privately"
+        val pm = L10n["commands.pm.desc"]
         val rename = "Rename yourself"
         val silent = "Debugs commands silently"
         val users = "Lists all users"
