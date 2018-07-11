@@ -3,11 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.common
 
+import chattime.api.net.Packet
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 fun formatTime(time: LocalTime): String = time.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
 fun formatCurrentTime(): String = formatTime(LocalTime.now())
 
-fun formatMessage(msg: String): String
-        = "${formatCurrentTime()} | $msg"
+fun formatMessage(msg: Packet.Message): String
+{
+    return "${formatCurrentTime()} | ${if (msg.sender.isBlank()) "" else "${msg.sender}: " }${msg.message}"
+}

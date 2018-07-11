@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.server
 
+import chattime.api.net.Packet
 import chattime.common.Info
 import picocli.CommandLine
 import java.net.ServerSocket
@@ -71,7 +72,7 @@ private fun serverToClients(server: ChatServer)
         val input = readLine()
 
         if (input != null && input != "") // "!input.isNullOrEmpty()" didn't do the smart cast :-(
-            server.forwardMessageFromUser(input, server.serverUser)
+            server.forwardMessageFromUser(Packet.Message(server.serverUser.id, input), server.serverUser)
     } while (input != null)
 }
 

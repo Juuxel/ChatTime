@@ -49,9 +49,9 @@ project(":server") {
     }
 }
 
-project(":client") {
+project(":") {
     dependencies {
-        compile "no.tornado:tornadofx:$tornadoFxVersion"
+        compile project(':api')
     }
 }
 

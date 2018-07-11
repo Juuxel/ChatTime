@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.api
 
+import chattime.api.net.Packet
+
 /**
  * Represents a user on the server.
  */
@@ -32,7 +34,7 @@ interface User
      *
      * @param msg the message
      */
-    fun sendMessage(msg: String)
+    fun sendMessage(msg: Packet.Message)
 
     /**
      * Removes this user from the chat.

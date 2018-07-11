@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.client
 
+import chattime.api.net.Packet
 import java.io.PrintWriter
 import java.net.Socket
 import kotlin.collections.ArrayList
@@ -12,10 +13,9 @@ class Connection(private val socket: Socket)
 {
     private val streamFromServer = socket.getInputStream()
     private val streamToServer = socket.getOutputStream()
-    private val reader = streamFromServer.bufferedReader()
     private val printer = PrintWriter(streamToServer)
 
-    private val msgHandlers: ArrayList<(String) -> Unit> = ArrayList()
+    private val msgHandlers: ArrayList<(Packet.Message) -> Unit> = ArrayList()
     private val exitHandlers: ArrayList<() -> Unit> = ArrayList()
 
     init
@@ -23,11 +23,13 @@ class Connection(private val socket: Socket)
         thread {
             try
             {
-                do
+                while (true)
                 {
-                    val msg = reader.readLine()
-                    msgHandlers.forEach { it(msg) }
-                } while (msg != null)
+                    val packet = Packet.decode(streamFromServer)
+
+                    if (packet is Packet.Message)
+                    msgHandlers.forEach { it(packet) }
+                }
             }
             catch (e: Exception)
             {
@@ -36,7 +38,7 @@ class Connection(private val socket: Socket)
         }
     }
 
-    fun handleMessage(block: (String) -> Unit)
+    fun handleMessage(block: (Packet.Message) -> Unit)
     {
         msgHandlers += block
     }
@@ -46,9 +48,9 @@ class Connection(private val socket: Socket)
         exitHandlers += block
     }
 
-    fun toServer(string: String?)
+    fun toServer(string: String)
     {
-        printer.println(string)
+        streamToServer.write(Packet.Message("", string).encode())
         printer.flush()
     }
 

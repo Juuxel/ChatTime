@@ -6,6 +6,7 @@ package chattime.server.plugins
 import chattime.api.event.*
 import chattime.api.features.Commands
 import chattime.api.features.Commands.Command
+import chattime.api.net.Packet
 import chattime.common.Info
 import chattime.server.L10n
 
@@ -45,13 +46,13 @@ class CommandPlugin : Commands
 
     private fun onMessageReceived(event: MessageEvent)
     {
-        if (event.msg.startsWith("!") && event.msg != "!")
+        if (event.msg.message.startsWith("!") && event.msg.message != "!")
             processCommand(event)
     }
 
     private fun processCommand(event: MessageEvent)
     {
-        val commandName = Commands.getCommandParams(event.msg)[0]
+        val commandName = Commands.getCommandParams(event.msg.message)[0]
         var commandFound = false
         val commandEvent = CommandEvent(event.server, commandName,
                                         event.msg, event.sender)
@@ -105,7 +106,7 @@ class CommandPlugin : Commands
 
     private fun id(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg,
+        val params = Commands.getCommandParams(event.msg.message,
                                                joinLastParam = true,
                                                lastParamIndex = 1)
 
@@ -133,7 +134,7 @@ class CommandPlugin : Commands
 
     private fun rename(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg,
+        val params = Commands.getCommandParams(event.msg.message,
                                                joinLastParam = true,
                                                lastParamIndex = 1)
 
@@ -159,7 +160,7 @@ class CommandPlugin : Commands
 
     private fun runSilently(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg,
+        val params = Commands.getCommandParams(event.msg.message,
                                                joinLastParam = true,
                                                lastParamIndex = 1)
 
@@ -169,7 +170,7 @@ class CommandPlugin : Commands
             return
         }
 
-        processCommand(MessageEvent(event.server, "!${params[1]}", event.sender))
+        processCommand(MessageEvent(event.server, Packet.Message(event.sender.id, "!${params[1]}"), event.sender))
         event.cancel()
     }
 
@@ -184,7 +185,7 @@ class CommandPlugin : Commands
 
     private fun pm(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg,
+        val params = Commands.getCommandParams(event.msg.message,
                                                joinLastParam = true,
                                                lastParamIndex = 2)
 
@@ -202,7 +203,7 @@ class CommandPlugin : Commands
 
     private fun whoIs(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg)
+        val params = Commands.getCommandParams(event.msg.message)
 
         if (params.size < 2)
         {
@@ -237,7 +238,7 @@ class CommandPlugin : Commands
 
     private fun kick(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg, joinLastParam = true,
+        val params = Commands.getCommandParams(event.msg.message, joinLastParam = true,
                                                lastParamIndex = 2)
 
         if (params.size < 3)

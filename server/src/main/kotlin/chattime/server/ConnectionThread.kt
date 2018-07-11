@@ -4,9 +4,10 @@
 package chattime.server
 
 import chattime.api.User
+import chattime.api.net.Packet
 import chattime.common.nextInt
-import java.io.PrintWriter
 import java.net.Socket
+import java.net.SocketException
 import java.util.*
 
 class ConnectionThread(private val client: Socket, private val server: ChatServer) : Runnable, User
@@ -14,8 +15,8 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
     override val id = "User-" + newUserId()
     override var name = id
     override var isEchoingEnabled = true
-    private val clientIn = Scanner(client.inputStream, Charsets.UTF_8.name())
-    private val clientOut = PrintWriter(client.outputStream.bufferedWriter(Charsets.UTF_8), true)
+    private val clientIn = client.getInputStream()
+    private val clientOut = client.getOutputStream()
 
     companion object
     {
@@ -47,27 +48,45 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
     {
         try
         {
-            do
+            while (true)
             {
-                val input = clientIn.nextLine()
-                server.forwardMessageFromUser(input, sender = this)
-            } while (input != null)
+                val input = Packet.decode(clientIn)
+
+                if (input is Packet.Message)
+                    server.forwardMessageFromUser(input, sender = this)
+            }
         }
         catch (e: Exception)
         {
             server.sendMessage(L10n["user.left", name])
-            client.close() // Close the socket just in case
+            server.users -= this
+        }
+        finally
+        {
+            closeAll()
         }
 
     }
 
-    override fun sendMessage(msg: String)
+    override fun sendMessage(msg: Packet.Message)
     {
-        clientOut.println(msg)
+        try
+        {
+            clientOut.write(msg.encode())
+        }
+        catch (e: SocketException)
+        {
+            closeAll()
+        }
     }
 
-    override fun kick()
+    override fun kick() = closeAll()
+
+    private fun closeAll()
     {
         client.close()
+        clientIn.close()
+        clientOut.close()
+        server.users -= this
     }
 }

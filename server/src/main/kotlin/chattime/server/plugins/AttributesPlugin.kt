@@ -49,7 +49,7 @@ class AttributesPlugin : Plugin
 
     private fun attributeCommand(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg)
+        val params = Commands.getCommandParams(event.msg.message)
 
         fun listSubCommands() {
             event.sendMessageToSender("[Attributes] List of subcommands:")

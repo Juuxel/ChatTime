@@ -8,6 +8,7 @@ import chattime.api.Server
 import chattime.api.User
 import chattime.api.event.MessageEvent
 import chattime.api.event.UserJoinEvent
+import chattime.api.net.Packet
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*
@@ -15,15 +16,14 @@ import kotlin.collections.HashMap
 
 class ChatServer : Server
 {
-    private val mutUsers: ArrayList<User> = arrayListOf(ServerUser)
     private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
     internal val pluginLoader = PluginLoader(this)
 
     override val plugins: List<Plugin>
         get() = pluginLoader.plugins
 
-    override val users: List<User>
-        get() = mutUsers
+    override val users: ArrayList<User>
+        get() = arrayListOf(ServerUser)
 
     override val serverUser = ServerUser
 
@@ -45,7 +45,7 @@ class ChatServer : Server
 
     override fun addUser(user: User)
     {
-        mutUsers += user
+        users += user
 
         eventBus.post(UserJoinEvent(this, user))
 
@@ -56,22 +56,18 @@ class ChatServer : Server
         = pluginPropertiesMap.getOrPut(plugin) { PluginPropertiesImpl(plugin) }
 
     @Synchronized
-    override fun forwardMessageFromUser(msg: String, sender: User)
+    override fun forwardMessageFromUser(msg: Packet.Message, sender: User)
     {
-        val event = MessageEvent(this, msg, sender)
+        val event = MessageEvent(this, Packet.Message(sender.id, msg.message), sender)
 
         eventBus.post(event)
-
         if (event.isCanceled) return
 
-        val formattedMessage = "${sender.name}: ${event.msg}"
-
-        sendMessage(formattedMessage,
-                    blacklist = if (sender.isEchoingEnabled) emptyList() else listOf(sender))
+        sendMessage(event.msg, blacklist = if (sender.isEchoingEnabled) emptyList() else listOf(sender))
     }
 
     @Synchronized
-    override fun sendMessage(msg: String,
+    override fun sendMessage(msg: Packet.Message,
                              blacklist: Collection<User>,
                              whitelist: Collection<User>)
     {
@@ -79,6 +75,14 @@ class ChatServer : Server
             users.filterNot { blacklist.contains(it) }.forEach { it.sendMessage(msg) }
         else
             users.filter { whitelist.contains(it) }.forEach { it.sendMessage(msg) }
+    }
+
+    @Synchronized
+    override fun sendMessage(msg: String,
+                             blacklist: Collection<User>,
+                             whitelist: Collection<User>)
+    {
+        sendMessage(Packet.Message("", msg), blacklist, whitelist)
     }
 
     override fun getUserById(id: String): User
@@ -100,7 +104,7 @@ class ChatServer : Server
             get() = false
             set(_) = Unit
 
-        override fun sendMessage(msg: String)
+        override fun sendMessage(msg: Packet.Message)
         {
             println(formatMessage(msg))
         }

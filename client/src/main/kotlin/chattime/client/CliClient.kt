@@ -7,6 +7,7 @@ package chattime.client
 import chattime.common.Info
 import chattime.common.formatMessage
 import picocli.CommandLine
+import java.net.ConnectException
 import java.net.InetAddress
 import java.net.Socket
 
@@ -29,34 +30,49 @@ fun main(args: Array<String>)
 
     println("ChatTime client starting up!")
 
-    val socket = Socket(params.host, params.port)
-    val connection = Connection(socket)
+    try
+    {
+        val socket = Socket(params.host, params.port)
+        val connection = Connection(socket)
 
-    println("Connected to the server at ${params.host}:${params.port}")
+        println("Connected to the server at ${params.host}:${params.port}")
 
-    connection.toServer("!silent attributes set isEchoingEnabled false") // Send the command to the server to clean up output :-)
+        connection.toServer("!silent attributes set isEchoingEnabled false") // Send the command to the server to clean up output :-)
 
-    Thread({ cliInput(connection) }).start()
+        Thread { cliInput(connection) }.start()
 
-    connection.handleMessage {
-        println(formatMessage(it))
+        connection.handleMessage {
+            println(formatMessage(it))
+        }
+
+        connection.handleExit {
+            println("Disconnected from the server")
+            System.exit(0)
+        }
     }
-
-    connection.handleExit {
-        println("Disconnected from the server")
-        System.exit(0)
+    catch (e: ConnectException)
+    {
+        System.err.println("Failed to connect to the server. Stack trace:")
+        e.printStackTrace()
     }
 }
 
 private fun cliInput(connection: Connection)
 {
-    do
+    try
     {
-        val input = readLine()
+        while (true)
+        {
+            val input = readLine() ?: continue
 
-        if (input != "")
-            connection.toServer(input)
-    } while (input != null)
+            if (input != "")
+                connection.toServer(input)
+        }
+    }
+    finally
+    {
+        connection.close()
+    }
 }
 
 @CommandLine.Command(name = "chattime-client", version = [Info.fullVersion])

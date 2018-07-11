@@ -5,6 +5,7 @@ package chattime.api.event
 
 import chattime.api.Server
 import chattime.api.User
+import chattime.api.net.Packet
 
 /**
  * This event represents a chat command,
@@ -24,5 +25,5 @@ import chattime.api.User
 class CommandEvent(server: Server,
                    /** The command name. */
                    val commandName: String,
-                   msg: String,
+                   msg: Packet.Message,
                    sender: User) : BaseMessageEvent(server, msg, sender)

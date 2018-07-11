@@ -6,6 +6,7 @@ package chattime.api
 import chattime.api.event.EventBus
 import chattime.api.features.Commands
 import chattime.api.features.Permissions
+import chattime.api.net.Packet
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 import chattime.api.util.Localization
@@ -69,6 +70,23 @@ interface Server
      * @param blacklist a collection of users to be excluded from receiving the message
      * @param whitelist a collection of users to be whitelisted for receiving the message
      */
+    fun sendMessage(msg: Packet.Message, blacklist: Collection<User> = emptyList(),
+                    whitelist: Collection<User> = emptyList())
+
+    /**
+     * Sends a message to the users on the server.
+     *
+     * The [blacklist] and the [whitelist] collections
+     * can specify the users more precisely. When the whitelist
+     * is not empty, only users on it receive the message. When the blacklist
+     * is not empty, every user on it is excluded from receiving the message.
+     * The whitelist is prioritized over the blacklist, meaning that
+     * if both lists are empty, the whitelist is followed.
+     *
+     * @param msg the message
+     * @param blacklist a collection of users to be excluded from receiving the message
+     * @param whitelist a collection of users to be whitelisted for receiving the message
+     */
     fun sendMessage(msg: String, blacklist: Collection<User> = emptyList(),
                     whitelist: Collection<User> = emptyList())
 
@@ -81,7 +99,7 @@ interface Server
      * @param msg the message
      * @param sender the message sender
      */
-    fun forwardMessageFromUser(msg: String, sender: User)
+    fun forwardMessageFromUser(msg: Packet.Message, sender: User)
 
     /**
      * Adds a user to the chat.

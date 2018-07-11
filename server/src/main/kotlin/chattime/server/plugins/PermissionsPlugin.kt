@@ -84,7 +84,7 @@ class PermissionsPlugin : Permissions
 
     private fun permissionCommand(event: MessageEvent)
     {
-        val params = Commands.getCommandParams(event.msg)
+        val params = Commands.getCommandParams(event.msg.message)
 
         if (params.size < 2)
         {
