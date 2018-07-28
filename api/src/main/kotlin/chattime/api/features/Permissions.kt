@@ -71,13 +71,11 @@ interface Permissions : Plugin
      *
      * @constructor The primary constructor.
      *
-     * @param action the action
-     * @param isAllowed is the action allowed
+     * @property action the action
+     * @property isAllowed true if the action is allowed
      */
     data class Permission(
-        /** The action. */
         val action: String,
-        /** True if the action is allowed. */
         val isAllowed: Boolean)
     {
         override fun equals(other: Any?): Boolean

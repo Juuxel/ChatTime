@@ -37,14 +37,16 @@ allprojects {
     }
 }
 
-project(":server") {
+project(":api") {
     apply plugin: 'org.jetbrains.dokka'
 
     dokka {
         outputFormat = 'html'
         outputDirectory = "$buildDir/javadoc"
     }
+}
 
+project(":server") {
     dependencies {
         compile "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
     }

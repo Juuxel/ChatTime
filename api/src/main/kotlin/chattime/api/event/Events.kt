@@ -16,10 +16,9 @@ import chattime.api.plugin.Plugin
  *
  * @constructor The primary constructor.
  *
- * @param server the chat server
+ * @property server the chat server
  */
 abstract class Event(
-    /** The chat server. */
     val server: Server)
 {
     /**
@@ -65,10 +64,9 @@ abstract class CancelableEvent(server: Server) : Event(server)
  * @constructor The primary constructor.
  *
  * @param server the chat server
- * @param user the user
+ * @property user the user
  */
 class UserJoinEvent(server: Server,
-                    /** The user who is joining. */
                     val user: User) : Event(server)
 
 /**
@@ -77,10 +75,9 @@ class UserJoinEvent(server: Server,
  * @constructor The primary constructor.
  *
  * @param server the chat server
- * @param plugin the plugin
+ * @property plugin the plugin
  */
 class PluginLoadEvent(server: Server,
-                      /** The plugin which is loading. */
                       val plugin: Plugin) : Event(server)
 
 /**
@@ -89,18 +86,13 @@ class PluginLoadEvent(server: Server,
  * @constructor The primary constructor.
  *
  * @param server the chat server
- * @param receiverId the message receiver
- * @param sender the message sender
- * @param msg the message
+ * @property receiverId the message receiver's id
+ * @property sender the message sender
+ * @property msg the message
  */
 class PluginMessageEvent(server: Server,
-                         /** The message receiver's id. */
                          val receiverId: String,
-
-                         /** The message sender. */
                          val sender: Plugin,
-
-                         /** The message. */
                          val msg: Any) : Event(server)
 
 /**
@@ -109,11 +101,9 @@ class PluginMessageEvent(server: Server,
  * used when subscribing to events.
  *
  * @constructor The primary constructor.
- *
- * @param eventClass the event class
+ * @property eventClass the event class
  */
 open class EventType<E : Event> protected constructor(
-    /** The event class. */
     val eventClass: Class<E>)
 {
     companion object

@@ -137,10 +137,11 @@ interface Commands : Plugin
 
     /**
      * A list of the default commands.
+     *
+     * @property commandName the command name
      */
-    enum class DefaultCommands(
-        /** The command name. */
-        val commandName: String)
+    // TODO Replace with a separate Markdown document
+    enum class DefaultCommands(@Suppress("unused") val commandName: String)
     {
         /**
          * Provides info about commands.

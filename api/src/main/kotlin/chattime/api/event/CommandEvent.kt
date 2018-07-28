@@ -18,12 +18,11 @@ import chattime.api.net.Packet
  * @constructor The primary constructor.
  *
  * @param server the chat server
- * @param commandName the command name
+ * @property commandName the command name
  * @param msg the chat message
  * @param sender the message sender
  */
 class CommandEvent(server: Server,
-                   /** The command name. */
                    val commandName: String,
                    msg: Packet.Message,
                    sender: User) : BaseMessageEvent(server, msg, sender)

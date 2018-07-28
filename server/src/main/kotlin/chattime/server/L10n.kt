@@ -11,11 +11,18 @@ object L10n : Localization
 {
     private val resourceBundle: ResourceBundle = ResourceBundle.getBundle("chattime.l10n.L10n")
 
-    override operator fun get(key: String): String = resourceBundle.getString(key)
+    override operator fun get(key: String): String
+        = if (resourceBundle.containsKey(key)) resourceBundle.getString(key)
+          else key
 
     override operator fun get(key: String, vararg args: Any?): String
     {
-        return MessageFormat.format(this[key], *args.map {
+        val string = this[key]
+
+        if (string == key)
+            return key
+
+        return MessageFormat.format(string, *args.map {
             if (it is Number)
                 it.toString()
             else

@@ -8,13 +8,11 @@ package chattime.api.plugin
  *
  * @constructor The primary constructor.
  *
- * @param id the other plugin
- * @param isRequired set to true if the other plugin is required
+ * @property id the other plugin
+ * @property isRequired set to true if the other plugin is required
  */
 sealed class LoadOrder(
-    /** The other plugin. */
     val id: String,
-    /** If this is true, the other plugin is required. */
     val isRequired: Boolean)
 {
     /**
