@@ -40,8 +40,7 @@ class CommandPlugin : Commands
     {
         val userList = listOf(event.user)
 
-        event.server.sendMessage(L10n["commands.start1"], whitelist = userList)
-        event.server.sendMessage(L10n["commands.start2"], whitelist = userList)
+        event.server.sendMessage("%s%n%s".format(L10n["commands.start1"], L10n["commands.start2"]), whitelist = userList)
     }
 
     private fun onMessageReceived(event: MessageEvent)
@@ -91,7 +90,7 @@ class CommandPlugin : Commands
     }
 
     private fun construct(name: String, desc: String, function: (CommandPlugin, MessageEvent) -> Unit)
-        = Commands.construct(name, desc, { function(this, it) })
+        = Commands.construct(name, desc) { function(this, it) }
 
     // COMMANDS //
 
@@ -99,9 +98,9 @@ class CommandPlugin : Commands
     {
         pluginMessage(event, "help", L10n["commands.help.all"])
 
-        commands.sortedBy { it.name }.forEach {
-            event.sendMessageToSender("- ${it.name}: ${it.description}")
-        }
+        commands.sortedBy { it.name }
+            .joinToString(separator = "\n") { "- ${it.name}: ${it.description}" }
+            .let(event::sendMessageToSender)
     }
 
     private fun id(event: MessageEvent)
@@ -225,15 +224,17 @@ class CommandPlugin : Commands
 
     private fun ctInfo(event: MessageEvent)
     {
-        event.sendMessageToSender(Info.fullVersion)
-        event.sendMessageToSender("Made by Juuxel")
-        event.sendMessageToSender("Licensed under MPL v2.0")
-        event.sendMessageToSender("See more info at ${Info.url}")
-        event.sendMessageToSender("-=-=-=-=-")
-        event.sendMessageToSender("Open Source Libraries:")
-        event.sendMessageToSender("- picocli (https://github.com/remkop/picocli)")
-        event.sendMessageToSender("- RxJava (https://github.com/ReactiveX/RxJava)")
-        event.sendMessageToSender("- RxKotlin (https://github.com/ReactiveX/RxKotlin)")
+        event.sendMessageToSender("""
+                                  ${Info.fullVersion}
+                                  Made by Juuxel
+                                  Licensed under MPL v2.0
+                                  See more info at ${Info.url}
+                                  -=-=-=-=-
+                                  Open Source Libraries:
+                                  - picocli (https://github.com/remkop/picocli)
+                                  - RxJava (https://github.com/ReactiveX/RxJava)
+                                  - RxKotlin (https://github.com/ReactiveX/RxKotlin)
+                                  """.trimIndent())
     }
 
     private fun kick(event: MessageEvent)

@@ -3,79 +3,59 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.api.net
 
-import java.io.ByteArrayInputStream
-import java.io.InputStream
-import java.nio.ByteBuffer
+import com.beust.klaxon.*
+import java.io.DataInputStream
+import kotlin.reflect.full.isSuperclassOf
 
-sealed class Packet(val id: Byte, private vararg val content: Pair<String, StringLength>)
+sealed class Packet(val id: Int)
 {
-    companion object
+    companion object : Converter
     {
-        fun decode(bytes: ByteArray): Packet
-        {
-            return ByteArrayInputStream(bytes).use(::decode)
-        }
+        override fun canConvert(cls: Class<*>) = cls.kotlin.isSuperclassOf(Packet::class)
 
-        fun decode(stream: InputStream): Packet
+        override fun fromJson(jv: JsonValue): Packet
         {
-            val id = stream.read()
+            if (jv.obj == null)
+                throw KlaxonException("jv must contain an object")
 
-            return when (id) {
+            val obj = jv.obj!!
+            val id = obj.int("id")!!
+
+            return when (id)
+            {
                 0 -> {
-                    val userIdLength = stream.read()
-                    val userId = ByteArray(userIdLength)
-                    stream.read(userId)
-
-                    val messageLength = stream.read()
-                    val message = ByteArray(messageLength)
-                    stream.read(message)
-
-                    Message(String(userId, Charsets.UTF_8), String(message, Charsets.UTF_8))
+                    val userId = obj.string("sender") ?: throw NoSuchElementException("Missing sender")
+                    val message = obj.string("message") ?: throw NoSuchElementException("Missing message")
+                    Message(userId, message)
                 }
 
                 else -> TODO("Handle other types")
             }
         }
-    }
 
-    constructor(id: Byte, vararg content: String) : this(id, *content.map { it to StringLength.BYTE }.toTypedArray())
+        override fun toJson(value: Any) = toJson(value as Packet)
 
-    class Message(val sender: String, val message: String) : Packet(0, sender, message)
+        fun toJson(packet: Packet) = json {
+            obj("id" to packet.id,
+                *packet.toMap().entries.map(Map.Entry<String, *>::toPair).toTypedArray())
+        }.toJsonString()
 
-    /**
-     * The required bytes to encode the length of a string.
-     *
-     * @property bytes the bytes
-     */
-    private enum class StringLength(val bytes: Int)
-    {
-        BYTE(1), SHORT(2)
-    }
-
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    fun encode(): ByteArray
-    {
-        val contentBytes = content.map { (string, length) -> (string as java.lang.String).getBytes(Charsets.UTF_8) to length }
-
-        var size = 1
-
-        for ((content, stringLength) in contentBytes)
-            size += content.size + stringLength.bytes
-
-        val buffer = ByteBuffer.allocate(size)
-        buffer.put(id)
-
-        for ((content, stringLength) in contentBytes)
+        fun decode(stream: DataInputStream): Packet
         {
-            when (stringLength)
-            {
-                StringLength.BYTE -> buffer.put(content.size.toByte())
-                StringLength.SHORT -> buffer.putShort(content.size.toShort())
-            }
-
-            content.forEach { buffer.put(it) }
+            val string = stream.readUTF()
+            return Klaxon()
+                .converter(this)
+                .parse(json = string)!!
         }
-
-        return buffer.array()
     }
+
+    data class Message(val sender: String, val message: String) : Packet(0)
+    {
+        override fun toMap() = mapOf("sender" to sender, "message" to message)
+    }
+
+    internal abstract fun toMap() : Map<String, *>
+
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun toJson() = toJson(this)
 }

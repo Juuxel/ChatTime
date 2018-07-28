@@ -60,7 +60,7 @@ fun main(args: Array<String>)
         val client = socket.accept()
         val thread = ConnectionThread(client, server)
 
-        Thread(thread).start()
+        Thread(thread, thread.id).start()
         server.addUser(thread)
     } while (client != null)
 }

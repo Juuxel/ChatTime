@@ -12,18 +12,21 @@ import chattime.api.net.Packet
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*
+import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.collections.HashMap
 
 class ChatServer : Server
 {
     private val pluginPropertiesMap: HashMap<Plugin, PluginProperties> = HashMap()
     internal val pluginLoader = PluginLoader(this)
+    internal val mutableUsers = arrayListOf<User>(ServerUser)
 
     override val plugins: List<Plugin>
         get() = pluginLoader.plugins
 
-    override val users: ArrayList<User>
-        get() = arrayListOf(ServerUser)
+    override val users: List<User>
+        get() = mutableUsers
 
     override val serverUser = ServerUser
 
@@ -45,10 +48,8 @@ class ChatServer : Server
 
     override fun addUser(user: User)
     {
-        users += user
-
+        mutableUsers += user
         eventBus.post(UserJoinEvent(this, user))
-
         sendMessage(L10n["user.join", user.name])
     }
 

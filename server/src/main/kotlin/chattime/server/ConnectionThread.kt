@@ -6,6 +6,8 @@ package chattime.server
 import chattime.api.User
 import chattime.api.net.Packet
 import chattime.common.nextInt
+import java.io.DataInputStream
+import java.io.DataOutputStream
 import java.net.Socket
 import java.net.SocketException
 import java.util.*
@@ -15,8 +17,8 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
     override val id = "User-" + newUserId()
     override var name = id
     override var isEchoingEnabled = true
-    private val clientIn = client.getInputStream()
-    private val clientOut = client.getOutputStream()
+    private val clientIn = DataInputStream(client.getInputStream())
+    private val clientOut = DataOutputStream(client.getOutputStream())
 
     companion object
     {
@@ -59,7 +61,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
         catch (e: Exception)
         {
             server.sendMessage(L10n["user.left", name])
-            server.users -= this
+            server.mutableUsers -= this
         }
         finally
         {
@@ -72,7 +74,8 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
     {
         try
         {
-            clientOut.write(msg.encode())
+            clientOut.writeUTF(msg.toJson())
+            clientOut.flush()
         }
         catch (e: SocketException)
         {
@@ -87,6 +90,5 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
         client.close()
         clientIn.close()
         clientOut.close()
-        server.users -= this
     }
 }

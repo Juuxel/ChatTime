@@ -4,16 +4,16 @@
 package chattime.client
 
 import chattime.api.net.Packet
-import java.io.PrintWriter
+import java.io.DataInputStream
+import java.io.DataOutputStream
 import java.net.Socket
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 class Connection(private val socket: Socket)
 {
-    private val streamFromServer = socket.getInputStream()
-    private val streamToServer = socket.getOutputStream()
-    private val printer = PrintWriter(streamToServer)
+    private val streamFromServer = DataInputStream(socket.getInputStream())
+    private val streamToServer = DataOutputStream(socket.getOutputStream())
 
     private val msgHandlers: ArrayList<(Packet.Message) -> Unit> = ArrayList()
     private val exitHandlers: ArrayList<() -> Unit> = ArrayList()
@@ -28,7 +28,7 @@ class Connection(private val socket: Socket)
                     val packet = Packet.decode(streamFromServer)
 
                     if (packet is Packet.Message)
-                    msgHandlers.forEach { it(packet) }
+                        msgHandlers.forEach { it(packet) }
                 }
             }
             catch (e: Exception)
@@ -50,8 +50,8 @@ class Connection(private val socket: Socket)
 
     fun toServer(string: String)
     {
-        streamToServer.write(Packet.Message("", string).encode())
-        printer.flush()
+        streamToServer.writeUTF(Packet.Message("", string).toJson())
+        streamToServer.flush()
     }
 
     fun close() = socket.close()
