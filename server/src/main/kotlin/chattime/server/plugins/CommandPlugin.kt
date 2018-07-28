@@ -233,7 +233,7 @@ class CommandPlugin : Commands
                                   Open Source Libraries:
                                   - picocli (https://github.com/remkop/picocli)
                                   - RxJava (https://github.com/ReactiveX/RxJava)
-                                  - RxKotlin (https://github.com/ReactiveX/RxKotlin)
+                                  - Klaxon (https://github.com/cbeust/klaxon)
                                   """.trimIndent())
     }
 
