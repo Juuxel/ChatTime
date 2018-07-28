@@ -52,7 +52,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
         {
             while (true)
             {
-                val input = Packet.decode(clientIn)
+                val input = Packet.read(clientIn)
 
                 if (input is Packet.Message)
                     server.forwardMessageFromUser(input, sender = this)
@@ -74,7 +74,7 @@ class ConnectionThread(private val client: Socket, private val server: ChatServe
     {
         try
         {
-            clientOut.writeUTF(msg.toJson())
+            msg.write(clientOut)
             clientOut.flush()
         }
         catch (e: SocketException)

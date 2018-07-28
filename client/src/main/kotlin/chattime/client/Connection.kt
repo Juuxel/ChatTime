@@ -25,7 +25,7 @@ class Connection(private val socket: Socket)
             {
                 while (true)
                 {
-                    val packet = Packet.decode(streamFromServer)
+                    val packet = Packet.read(streamFromServer)
 
                     if (packet is Packet.Message)
                         msgHandlers.forEach { it(packet) }
@@ -50,7 +50,7 @@ class Connection(private val socket: Socket)
 
     fun toServer(string: String)
     {
-        streamToServer.writeUTF(Packet.Message("", string).toJson())
+        Packet.Message("", string).write(streamToServer)
         streamToServer.flush()
     }
 

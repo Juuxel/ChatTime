@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.api.net
 
+import chattime.api.net.Packet.Companion
 import com.beust.klaxon.*
 import java.io.DataInputStream
+import java.io.DataOutputStream
 import kotlin.reflect.full.isSuperclassOf
 
 /**
@@ -70,11 +72,12 @@ sealed class Packet(val id: Int)
         }.toJsonString()
 
         /**
-         * Decodes a packet from the input [stream].
+         * Reads a packet from the input [stream].
          *
-         * @see toJson
+         * @see fromJson
+         * @see write
          */
-        fun decode(stream: DataInputStream): Packet
+        fun read(stream: DataInputStream): Packet
         {
             val string = stream.readUTF()
             return Klaxon()
@@ -102,10 +105,11 @@ sealed class Packet(val id: Int)
     internal abstract fun toMap() : Map<String, *>
 
     /**
-     * Converts this packet to JSON.
+     * Writes this packet to the [outputStream].
      *
-     * @see Companion.toJson
+     * @see toJson
+     * @see read
      */
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun toJson() = toJson(this)
+    fun write(outputStream: DataOutputStream)
+        = outputStream.writeUTF(toJson(this))
 }
