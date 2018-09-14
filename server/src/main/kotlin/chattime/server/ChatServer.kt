@@ -12,9 +12,6 @@ import chattime.api.net.Packet
 import chattime.api.plugin.Plugin
 import chattime.api.plugin.PluginProperties
 import chattime.server.plugins.*
-import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.collections.HashMap
 
 class ChatServer : Server
 {

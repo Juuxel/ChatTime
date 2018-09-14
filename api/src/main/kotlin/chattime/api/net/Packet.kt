@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package chattime.api.net
 
-import chattime.api.net.Packet.Companion
 import com.beust.klaxon.*
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -51,7 +50,7 @@ sealed class Packet(val id: Int)
                     Message(userId, message)
                 }
 
-                else -> TODO("Handle other types")
+                else -> throw IllegalArgumentException("Unknown packet ID: $id")
             }
         }
 
