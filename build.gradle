@@ -1,6 +1,6 @@
 // Kotlin stuff
 buildscript {
-    ext.kotlin_version = '1.2.51'
+    ext.kotlin_version = '1.2.70'
     ext.dokka_version = '0.9.17'
     ext.shadow_version = '2.0.1'
 
@@ -29,6 +29,10 @@ allprojects {
     repositories {
         mavenCentral()
         jcenter()
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
     }
 
     dependencies {
