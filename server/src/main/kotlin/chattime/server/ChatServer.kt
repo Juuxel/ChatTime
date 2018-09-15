@@ -56,7 +56,7 @@ class ChatServer : Server
     @Synchronized
     override fun forwardMessageFromUser(msg: Packet.Message, sender: User)
     {
-        val event = MessageEvent(this, Packet.Message(sender.id, msg.message), sender)
+        val event = MessageEvent(this, Packet.Message(sender.name, msg.message), sender)
 
         eventBus.post(event)
         if (event.isCanceled) return

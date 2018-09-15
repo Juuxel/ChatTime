@@ -144,7 +144,7 @@ class CommandPlugin : Commands
             val oldName = event.sender.name
             val newName = params[1]
             event.sender.name = newName
-            event.server.sendMessage(L10n["commands.rename.renamed"].format(oldName, newName))
+            event.server.sendMessage(L10n["commands.rename.renamed", oldName, newName])
         }
     }
 

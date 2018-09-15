@@ -90,9 +90,10 @@ sealed class Packet(val id: Int)
      *
      * Packet ID: 0
      *
-     * @property sender the message sender
+     * @property sender the message sender ([name][chattime.api.User.name])
      * @property message the message content
      */
+    // TODO Change sender back to the id
     data class Message(val sender: String, val message: String) : Packet(0)
     {
         override fun toMap() = mapOf("sender" to sender, "message" to message)

@@ -23,10 +23,7 @@ object L10n : Localization
             return key
 
         return MessageFormat.format(string, *args.map {
-            if (it is Number)
-                it.toString()
-            else
-                it
+            it as? String ?: it.toString()
         }.toTypedArray())
     }
 }

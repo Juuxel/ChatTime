@@ -6,17 +6,21 @@ package chattime.client
 import chattime.api.net.Packet
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.net.InetAddress
 import java.net.Socket
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
-class Connection(private val socket: Socket)
+class Connection private constructor(private val socket: Socket)
 {
     private val streamFromServer = DataInputStream(socket.getInputStream())
     private val streamToServer = DataOutputStream(socket.getOutputStream())
 
     private val msgHandlers: ArrayList<(Packet.Message) -> Unit> = ArrayList()
     private val exitHandlers: ArrayList<() -> Unit> = ArrayList()
+
+    constructor(host: InetAddress, port: Int) : this(Socket(host, port))
+    constructor(host: String, port: Int) : this(Socket(host, port))
 
     init
     {
